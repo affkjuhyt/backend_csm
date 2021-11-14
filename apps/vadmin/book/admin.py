@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.vadmin.book.models import Book
+from apps.vadmin.book.models import Book, Image
 from apps.vadmin.book.models import Chapter
 
 
@@ -22,5 +22,13 @@ class ChaptersAdmin(admin.ModelAdmin):
     list_filter = ['book']
 
 
+class ImagesAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'chapter', 'image'
+    )
+    list_filter = ['chapter']
+
+
 admin.site.register(Book, BooksAdmin)
 admin.site.register(Chapter, ChaptersAdmin)
+admin.site.register(Image, ImagesAdmin)

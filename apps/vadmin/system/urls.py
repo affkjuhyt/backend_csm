@@ -5,7 +5,7 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
     ConfigSettingsModelViewSet, SaveFileModelViewSet, MessagePushModelViewSet, LoginInforModelViewSet, \
     OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView
 
-from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet
+from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet
 
 router = DefaultRouter()
 router.register(r'dict/type', DictDataModelViewSet)
@@ -32,6 +32,10 @@ urlpatterns = [
     re_path('dict/data/export/', DictDetailsModelViewSet.as_view({'get': 'export'})),
     # export data book
     re_path('book/data/export/', BookDataModelViewSet.as_view({'get': 'export'})),
+    # export data chapter
+    re_path('book/chapter/export/', ChapterDataModelViewSet.as_view({'get': 'export'})),
+    # update chapter
+    re_path('book/chapter/update/', ChapterAdminViewSet.as_view({'put': 'update_chapter'})),
     # 清理字典缓存
     re_path('dict/type/clearCache/', DictDetailsModelViewSet.as_view({'delete': 'clearCache', })),
     # 消息通知导出

@@ -1,5 +1,17 @@
-from apps.vadmin.book.models import Chapter
+import os
+import zipfile
+from io import BytesIO
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from rest_framework.response import Response
+
+from apps.vadmin.book.models import Chapter, Book
 from apps.vadmin.op_drf.serializers import CustomModelSerializer
+
+from datetime import datetime
+today = datetime.now()
+today_path = today.strftime("%Y/%m/%d")
 
 
 class ChapterDataSerializer(CustomModelSerializer):
@@ -25,6 +37,11 @@ class ExportChapterDataSerializer(CustomModelSerializer):
     class Meta:
         model = Chapter
         fields = ('id', 'title', 'book', 'number', 'thumbnail', 'like_count')
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['name_book'] = instance.book.title
+        return response
 
 
 class ChapterDataCreateUpdateSerializer(CustomModelSerializer):
