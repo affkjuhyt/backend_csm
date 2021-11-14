@@ -95,39 +95,31 @@ class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
         return Chapter.objects.filter()
 
     def update_chapter(self, request, *args, **kwargs):
-        breakpoint()
-        zip_import = request.FILES['file']
+        zip_import = request.data.get('file')
         data = request.data
-        name = data.get('name')
-        author = data.get('author')
+        title = data.get('title')
+        number = int(data.get('number'))
         description = data.get('description')
-
-        book = Book.objects.create(title=name, author=author, description=description)
+        chapter = Chapter.objects.filter(number=number).first()
+        # book = Chapter.objects.filter(title=title, number=number, description=description)
         # Get ra name thu muc de luu vao chuong
         # Sau do lay image de luu vao chuong
         zip_file = zipfile.ZipFile(zip_import)
-        chapter = []
         for name in zip_file.namelist():
-            if ".png" not in name:
-                name = name[:-1]
-                chapter.append(name)
-                Chapter.objects.create(title=name, book_id=book.id)
-            else:
-                data = zip_file.read(name)
-                try:
-                    from PIL import Image
-                    image = Image.open(BytesIO(data))
-                    image.load()
-                    image = Image.open(BytesIO(data))
-                    image.verify()
-                except ImportError:
-                    pass
-                except:
-                    continue
-                name = os.path.split(name)[1]
-                path = os.path.join('books', today_path, name)
-                saved_path = default_storage.save(path, ContentFile(data))
-                chapter_last = Chapter.objects.filter().last()
-                ImageBook.objects.create(image=saved_path, chapter=chapter_last)
+            data = zip_file.read(name)
+            try:
+                from PIL import Image
+                image = Image.open(BytesIO(data))
+                image.load()
+                image = Image.open(BytesIO(data))
+                image.verify()
+            except ImportError:
+                pass
+            except:
+                continue
+            name = os.path.split(name)[1]
+            path = os.path.join('books', today_path, name)
+            saved_path = default_storage.save(path, ContentFile(data))
+            ImageBook.objects.create(image=saved_path, chapter=chapter)
         return Response("Successfully create chapter")
 
