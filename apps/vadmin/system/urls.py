@@ -5,12 +5,13 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
     ConfigSettingsModelViewSet, SaveFileModelViewSet, MessagePushModelViewSet, LoginInforModelViewSet, \
     OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView
 
-from apps.vadmin.book.views import BookDataModelViewSet
+from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet
 
 router = DefaultRouter()
 router.register(r'dict/type', DictDataModelViewSet)
 router.register(r'dict/data', DictDetailsModelViewSet)
 router.register(r'book/data', BookDataModelViewSet)
+router.register(r'book/chapter', ChapterDataModelViewSet)
 router.register(r'config', ConfigSettingsModelViewSet)
 router.register(r'savefile', SaveFileModelViewSet)
 router.register(r'message', MessagePushModelViewSet)

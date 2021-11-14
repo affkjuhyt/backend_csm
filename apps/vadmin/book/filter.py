@@ -1,6 +1,6 @@
 import django_filters
 
-from apps.vadmin.book.models import Book
+from apps.vadmin.book.models import Book, Chapter
 from django.db import models
 
 
@@ -13,4 +13,17 @@ class BookDataFilter(django_filters.rest_framework.FilterSet):
 
     class Meta:
         model = Book
+        exclude = ('thumbnail',)
+
+
+class ChapterDataFilter(django_filters.rest_framework.FilterSet):
+    """
+    Phan loai du lieu
+    """
+
+    title = django_filters.CharFilter(lookup_expr='icontains')
+    # book = django_filters.CharFilter(field_name='book__title', lookup_expr='iexact')
+
+    class Meta:
+        models = Chapter
         exclude = ('thumbnail',)

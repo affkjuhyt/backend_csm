@@ -1,4 +1,6 @@
-from apps.vadmin.book.models import Book
+from rest_framework import serializers
+
+from apps.vadmin.book.models import Book, Chapter
 from apps.vadmin.op_drf.serializers import CustomModelSerializer
 
 

@@ -23,7 +23,7 @@ def get_object_or_404(queryset, *filter_args, **filter_kwargs):
     try:
         return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
     except (TypeError, ValueError, ValidationError, Http404):
-        raise APIException(message='该对象不存在或者无访问权限')
+        raise APIException(message='Đối tượng không tồn tại hoặc không có quyền')
 
 
 class GenericViewSet(ViewSetMixin, GenericAPIView):

@@ -11,6 +11,11 @@ class ChapterDataSerializer(CustomModelSerializer):
         model = Chapter
         exclude = ('creator', 'modifier')
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['name_book'] = instance.book.title
+        return response
+
 
 class ExportChapterDataSerializer(CustomModelSerializer):
     """
