@@ -76,11 +76,12 @@ class ChapterDataModelViewSet(CustomModelViewSet):
     def get_book(self, request):
         paginator = PageNumberPagination()
         paginator.page_size = 10
+        paginator.page_query_param = 'pageNum'
         book_id = int(request.GET.get('book'))
         title = request.GET.get('title')
         chapters = Chapter.objects.filter(book_id=book_id, title__contains=title)
         result_page = paginator.paginate_queryset(chapters, request)
-        list_chapters = ChapterDataSerializer(result_page, many=True)
+        list_chapters = ChapterDataSerializer(result_page, context={"request": request}, many=True)
 
         return paginator.get_paginated_response(list_chapters.data)
 
