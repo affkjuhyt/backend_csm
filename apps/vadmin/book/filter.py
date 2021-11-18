@@ -1,6 +1,6 @@
 import django_filters
 
-from apps.vadmin.book.models import Book, Chapter
+from apps.vadmin.book.models import Book, Chapter, Image
 from django.db import models
 
 
@@ -27,3 +27,15 @@ class ChapterDataFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         models = Chapter
         exclude = ('thumbnail',)
+
+
+class SaveImageFilter(django_filters.rest_framework.FilterSet):
+    """
+    文件管理 简单过滤器
+    """
+    # name = django_filters.CharFilter(lookup_expr='icontains')
+    chapter = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Image
+        exclude = ('image',)

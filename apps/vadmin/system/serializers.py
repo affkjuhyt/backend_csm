@@ -12,9 +12,6 @@ from apps.vadmin.system.models import LoginInfor, OperationLog, CeleryLog
 # ================================================= #
 
 class DictDataSerializer(CustomModelSerializer):
-    """
-    字典管理 简单序列化器
-    """
 
     class Meta:
         model = DictData
@@ -22,19 +19,12 @@ class DictDataSerializer(CustomModelSerializer):
 
 
 class ExportDictDataSerializer(CustomModelSerializer):
-    """
-    导出 字典管理 简单序列化器
-    """
-
     class Meta:
         model = DictData
         fields = ('id', 'dictName', 'dictType', 'status', 'creator', 'modifier', 'remark',)
 
 
 class DictDataCreateUpdateSerializer(CustomModelSerializer):
-    """
-    字典管理 创建/更新时的列化器
-    """
 
     class Meta:
         model = DictData
@@ -46,9 +36,6 @@ class DictDataCreateUpdateSerializer(CustomModelSerializer):
 # ================================================= #
 
 class DictDetailsSerializer(CustomModelSerializer):
-    """
-    字典详情 简单序列化器
-    """
     dictType = serializers.CharField(source='dict_data.dictType', default='', read_only=True)
 
     class Meta:
@@ -57,19 +44,12 @@ class DictDetailsSerializer(CustomModelSerializer):
 
 
 class ExportDictDetailsSerializer(CustomModelSerializer):
-    """
-    导出 字典详情 简单序列化器
-    """
-
     class Meta:
         model = DictDetails
         fields = ('id', 'dictLabel', 'dictValue', 'is_default', 'status', 'sort', 'creator', 'modifier', 'remark',)
 
 
 class DictDetailsListSerializer(CustomModelSerializer):
-    """
-    字典详情List 简单序列化器
-    """
 
     class Meta:
         model = DictDetails
@@ -77,9 +57,6 @@ class DictDetailsListSerializer(CustomModelSerializer):
 
 
 class DictDetailsCreateUpdateSerializer(CustomModelSerializer):
-    """
-    字典详情 创建/更新时的列化器
-    """
 
     def save(self, **kwargs):
         if getattr(settings, "REDIS_ENABLE", False):
@@ -96,9 +73,6 @@ class DictDetailsCreateUpdateSerializer(CustomModelSerializer):
 # ================================================= #
 
 class ConfigSettingsSerializer(CustomModelSerializer):
-    """
-    参数设置 简单序列化器
-    """
 
     class Meta:
         model = ConfigSettings
@@ -106,9 +80,6 @@ class ConfigSettingsSerializer(CustomModelSerializer):
 
 
 class ExportConfigSettingsSerializer(CustomModelSerializer):
-    """
-    导出 参数设置 简单序列化器
-    """
 
     class Meta:
         model = ConfigSettings
@@ -117,9 +88,6 @@ class ExportConfigSettingsSerializer(CustomModelSerializer):
 
 
 class ConfigSettingsCreateUpdateSerializer(CustomModelSerializer):
-    """
-    参数设置 创建/更新时的列化器
-    """
 
     def save(self, **kwargs):
         if getattr(settings, "REDIS_ENABLE", False):
@@ -136,9 +104,6 @@ class ConfigSettingsCreateUpdateSerializer(CustomModelSerializer):
 # ================================================= #
 
 class SaveFileSerializer(CustomModelSerializer):
-    """
-    文件管理 简单序列化器
-    """
     file_url = serializers.CharField(source='file.url', read_only=True)
 
     class Meta:
@@ -147,9 +112,6 @@ class SaveFileSerializer(CustomModelSerializer):
 
 
 class SaveFileCreateUpdateSerializer(CustomModelSerializer):
-    """
-    文件管理 创建/更新时的列化器
-    """
     file_url = serializers.SerializerMethodField(read_only=True)
 
     def get_file_url(self, obj: SaveFile):
@@ -160,10 +122,9 @@ class SaveFileCreateUpdateSerializer(CustomModelSerializer):
         self.validated_data['name'] = files.name
         self.validated_data['size'] = files.size
         self.validated_data['type'] = files.content_type
-        self.validated_data['address'] = '本地存储'
-        self.validated_data['source'] = '用户上传'
+        self.validated_data['address'] = 'lưu trữ cục bộ'
+        self.validated_data['source'] = 'Người dùng tải lên'
         instance = super().save(**kwargs)
-        # 进行判断是否需要OSS上传
         return instance
 
     class Meta:

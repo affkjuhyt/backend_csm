@@ -5,7 +5,8 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
     ConfigSettingsModelViewSet, SaveFileModelViewSet, MessagePushModelViewSet, LoginInforModelViewSet, \
     OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView
 
-from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet
+from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet, \
+    ImageDataModelViewSet
 
 router = DefaultRouter()
 router.register(r'dict/type', DictDataModelViewSet)
@@ -14,6 +15,7 @@ router.register(r'book/data', BookDataModelViewSet)
 router.register(r'book/chapter', ChapterDataModelViewSet)
 router.register(r'config', ConfigSettingsModelViewSet)
 router.register(r'savefile', SaveFileModelViewSet)
+router.register(r'image', ImageDataModelViewSet)
 router.register(r'message', MessagePushModelViewSet)
 router.register(r'logininfor', LoginInforModelViewSet)
 router.register(r'operation_log', OperationLogModelViewSet)
@@ -59,6 +61,7 @@ urlpatterns = [
     # 清除废弃文件
     re_path('clearsavefile/', SaveFileModelViewSet.as_view({'post': 'clearsavefile', })),
     # 获取系统信息cpu、内存、硬盘
+    re_path('clearimagefile/', ImageDataModelViewSet.as_view({'post': 'clearimagefile',})),
     re_path('sys/info/', SystemInfoApiView.as_view())
 ]
 urlpatterns += router.urls

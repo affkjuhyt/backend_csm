@@ -3,29 +3,28 @@ import zipfile
 from io import BytesIO
 
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from rest_framework import generics
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 
-from apps.vadmin.book.filter import BookDataFilter, ChapterDataFilter
+from apps.vadmin.book.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter
 from apps.vadmin.book.models import Book, Chapter
 from apps.vadmin.book.serializers.book import BookDataSerializer, BookDataCreateUpdateSerializer, \
     ExportBookDataSerializer
-from apps.vadmin.book.models.image import Image as ImageBook
+from apps.vadmin.book.models.image import Image as ImageBook, Image
 from apps.vadmin.book.serializers.chapter import ChapterDataSerializer, ChapterDataCreateUpdateSerializer, \
     ExportChapterDataSerializer, today_path
-from apps.vadmin.op_drf.filters import DataLevelPermissionsFilter
+from apps.vadmin.book.serializers.image import SaveImageSerializer, SaveImageCreateUpdateSerializer, ImageDataSerializer
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
-from apps.vadmin.permission.permissions import CommonPermission
+from apps.vadmin.permission.permissions import CommonPermission, User
 from apps.vadmin.utils.export_excel import export_excel_save_model
+from apps.vadmin.utils.file_util import get_all_files, delete_files, remove_empty_dir
 
 
 class BookDataModelViewSet(CustomModelViewSet):
@@ -79,7 +78,12 @@ class ChapterDataModelViewSet(CustomModelViewSet):
         paginator.page_query_param = 'pageNum'
         book_id = int(request.GET.get('book'))
         title = request.GET.get('title')
-        chapters = Chapter.objects.filter(book_id=book_id, title__contains=title)
+        if not title:
+            paginator.page_size = 3000
+            title = ""
+        if not book_id:
+            book_id = ""
+        chapters = Chapter.objects.filter(book_id=book_id, title__contains=title).order_by('-id')
         result_page = paginator.paginate_queryset(chapters, request)
         list_chapters = ChapterDataSerializer(result_page, context={"request": request}, many=True)
 
@@ -124,3 +128,54 @@ class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
             ImageBook.objects.create(image=saved_path, chapter=chapter)
         return Response("Successfully create chapter")
 
+
+class ImageDataModelViewSet(CustomModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = SaveImageSerializer
+    create_serializer_class = SaveImageCreateUpdateSerializer
+    update_serializer_class = SaveImageCreateUpdateSerializer
+    filter_class = SaveImageFilter
+    # extra_filter_backends = [DataLevelPermissionsFilter]
+    update_extra_permission_classes = (CommonPermission,)
+    destroy_extra_permission_classes = (CommonPermission,)
+    create_extra_permission_classes = (CommonPermission,)
+    search_fields = ('configName',)
+    ordering = '-create_datetime'
+
+    def create(self, request: Request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return SuccessResponse(serializer.data, status=201, headers=headers)
+
+    def clearimagefile(self, request: Request, *args, **kwargs):
+        file_list = get_all_files(os.path.join(settings.MEDIA_ROOT, 'system'))
+        queryset_files = [os.path.join(os.path.join(settings.MEDIA_ROOT) + os.sep, ele) for ele in
+                          list(self.get_queryset().values_list('file', flat=True))]
+        queryset_files_dir = set(map(lambda absdir: os.path.abspath(absdir), queryset_files))
+        delete_list = list(set(file_list) - queryset_files_dir)
+        delete_files(delete_list)
+        remove_empty_dir(os.path.join(settings.MEDIA_ROOT, 'system'))
+        return SuccessResponse(msg=f"Dọn dẹp thành công {len(delete_list)} các tệp lỗi thời")
+
+    @action(detail=False, methods=['get'], url_path='filter', filter_class=SaveImageFilter)
+    def get_book(self, request):
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        paginator.page_query_param = 'pageNum'
+        book_id = request.GET.get('book')
+        creator_name = request.GET.get('creator_name')
+        chapter_ids = request.GET.get('chapter')
+        if not book_id and not creator_name and not chapter_ids:
+            chapter_ids = Chapter.objects.filter().values_list('id')
+        else:
+            if not chapter_ids:
+                chapter_ids = Chapter.objects.filter(book_id=book_id).values_list('id')
+            else:
+                chapter_ids = Chapter.objects.filter(book_id=book_id, id=chapter_ids).values_list('id')
+        images = Image.objects.filter(chapter__in=chapter_ids).order_by('-id')
+        result_page = paginator.paginate_queryset(images, request)
+        list_images = SaveImageSerializer(result_page, context={"request": request}, many=True)
+
+        return paginator.get_paginated_response(list_images.data)
