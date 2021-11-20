@@ -36,3 +36,12 @@ class CoreModel(models.Model):
         abstract = True
         verbose_name = '核心模型'
         verbose_name_plural = verbose_name
+
+
+class BaseTimeStampModel(models.Model):
+    dept_belong_id = models.CharField(max_length=64, verbose_name="Data attribution department", null=True, blank=True)
+    update_datetime = UpdateDateTimeField()  # 修改时间
+    create_datetime = CreateDateTimeField()  # 创建时间
+
+    class Meta:
+        abstract = True

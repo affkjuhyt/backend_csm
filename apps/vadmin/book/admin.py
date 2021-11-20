@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.vadmin.book.models import Book, Image
-from apps.vadmin.book.models import Chapter
+from apps.vadmin.book.models import Chapter, Comment, Reply, Tag, TagBook
 
 
 class BooksAdmin(admin.ModelAdmin):
@@ -29,6 +29,28 @@ class ImagesAdmin(admin.ModelAdmin):
     list_filter = ['chapter']
 
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'chapter', 'user', 'content', 'like_count')
+    list_filter = ['user', 'chapter']
+
+
+class ReplyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'comment', 'user', 'reply', 'like_count')
+    list_filter = ['user']
+
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+class TagBookAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tag', 'book')
+
+
 admin.site.register(Book, BooksAdmin)
 admin.site.register(Chapter, ChaptersAdmin)
 admin.site.register(Image, ImagesAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Reply, ReplyAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(TagBook, TagBookAdmin)

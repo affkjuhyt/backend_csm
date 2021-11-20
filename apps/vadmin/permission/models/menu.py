@@ -68,7 +68,7 @@ class Menu(CoreModel):
             cache.delete('permission_interface_dict')
 
     class Meta:
-        verbose_name = '菜单管理'
+        verbose_name = 'Quản lý menu'
         verbose_name_plural = verbose_name
 
     def __str__(self):

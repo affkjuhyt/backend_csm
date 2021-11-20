@@ -9,6 +9,12 @@ from rest_framework.renderers import JSONRenderer
 from apps.vadmin.permission.models import Dept
 
 
+def full_name(first_name, last_name):
+    full_name = first_name + " " + last_name
+
+    return full_name
+
+
 def get_primary_field(model, many=False):
     """
     获取模型的主键列对应的Field

@@ -1,11 +1,3 @@
-import os
-import zipfile
-from io import BytesIO
-
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from rest_framework.response import Response
-
 from apps.vadmin.book.models import Chapter, Book
 from apps.vadmin.op_drf.serializers import CustomModelSerializer
 

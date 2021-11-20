@@ -14,7 +14,8 @@ class UserProfile(AbstractUser, CoreModel):
         (1, "前台用户"),
     )
     objects = UserManager()
-    username = CharField(max_length=150, unique=True, db_index=True, verbose_name='用户账号')
+    full_name = CharField(max_length=50, null=True, blank=True)
+    username = CharField(max_length=150, unique=True, db_index=True, verbose_name='Đăng nhập')
     secret = CharField(max_length=255, default=uuid4, verbose_name='加密秘钥')
     email = CharField(max_length=255, verbose_name="邮箱", null=True, blank=True)
     mobile = CharField(max_length=255, verbose_name="电话", null=True, blank=True)

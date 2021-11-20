@@ -84,7 +84,7 @@ class Command(BaseCommand):
                                       'system_configsettings'],
             'permission_post': [os.path.join('permission', 'permission_post.sql'), '岗位管理', 'permission_post'],
             'permission_dept': [os.path.join('permission', 'permission_dept.sql'), '部门管理', 'permission_dept'],
-            'permission_menu': [os.path.join('permission', 'permission_menu.sql'), '菜单管理', 'permission_menu'],
+            'permission_menu': [os.path.join('permission', 'permission_menu.sql'), 'Quản lý menu', 'permission_menu'],
             'permission_role': [os.path.join('permission', 'permission_role.sql'), '角色管理',
                                 ','.join(['permission_role', 'permission_role_dept', 'permission_role_menu'])],
             'permission_userprofile': [os.path.join('permission', 'permission_userprofile.sql'), '用户管理', ','.join(
