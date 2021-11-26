@@ -2,13 +2,12 @@ import logging
 
 from django.db import models
 
-# from utils.base_models import BaseUserModel
-from apps.vadmin.op_drf.models import CoreModel
+from apps.vadmin.op_drf.models import BaseTimeStampModel
 
 logger = logging.getLogger(__name__.split('.')[0])
 
 
-class Profile(CoreModel):
+class Profile(BaseTimeStampModel):
     ADMIN = 'admin'
     VIP = 'vip'
     NORMAL = 'normal'

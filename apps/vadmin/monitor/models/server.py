@@ -5,15 +5,15 @@ from apps.vadmin.op_drf.fields import UpdateDateTimeField, CreateDateTimeField
 
 
 class Server(models.Model):
-    name = CharField(max_length=256, verbose_name='服务器名称', null=True, blank=True)
-    ip = CharField(max_length=32, verbose_name="ip地址")
-    os = CharField(max_length=32, verbose_name="操作系统")
-    remark = CharField(max_length=256, verbose_name="备注", null=True, blank=True)
-    update_datetime = UpdateDateTimeField()  # 修改时间
-    create_datetime = CreateDateTimeField()  # 创建时间
+    name = CharField(max_length=256, verbose_name='Tên máy chủ', null=True, blank=True)
+    ip = CharField(max_length=32, verbose_name="Địa chỉ ip")
+    os = CharField(max_length=32, verbose_name="Hệ điều hành")
+    remark = CharField(max_length=256, verbose_name="Nhận xét", null=True, blank=True)
+    update_datetime = UpdateDateTimeField()
+    create_datetime = CreateDateTimeField()
 
     class Meta:
-        verbose_name = '服务器信息'
+        verbose_name = 'Thông tin máy chủ'
         verbose_name_plural = verbose_name
 
     def __str__(self):

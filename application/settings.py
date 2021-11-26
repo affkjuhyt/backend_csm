@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-# 导入全局环境变量
 import datetime
 import os
 import sys
@@ -43,15 +42,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'captcha',
     'django_celery_beat',
-    'drf_yasg',  # swagger 接口
-    # 自定义app
+    'drf_yasg',
+    # app
     'apps.vadmin.book',
     'apps.vadmin.permission',
     'apps.vadmin.op_drf',
     'apps.vadmin.system',
+    'apps.vadmin.group',
+    'apps.vadmin.post',
     'apps.vadmin.celery',
     'apps.vadmin.monitor',
     'apps.vadmin.userprofile',
@@ -69,9 +71,8 @@ MIDDLEWARE = [
     'vadmin.op_drf.middleware.ApiLoggingMiddleware',  # 用于记录API访问日志
     'vadmin.op_drf.middleware.PermissionModeMiddleware',  # 权限中间件
 ]
-# 允许跨域源
+
 CORS_ORIGIN_ALLOW_ALL = CORS_ORIGIN_ALLOW_ALL
-# 允许ajax请求携带cookie
 CORS_ALLOW_CREDENTIALS = CORS_ALLOW_CREDENTIALS
 X_FRAME_OPTIONS = "ALLOW-FROM"
 ROOT_URLCONF = 'application.urls'
@@ -130,23 +131,18 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-"""
-静态目录、多媒体配置
-"""
+
 # 访问静态文件的url地址前缀
 STATIC_URL = '/static/'
 # 收集静态文件，必须将 MEDIA_ROOT,STATICFILES_DIRS先注释
 # python manage.py collectstatic
 # STATIC_ROOT=os.path.join(BASE_DIR,'static')
-# # 设置django的静态文件目录
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 if not os.path.exists(os.path.join(BASE_DIR, 'media')):
     os.makedirs(os.path.join(BASE_DIR, 'media'))
-# 访问上传文件的url地址前缀
 MEDIA_URL = "/media/"
-# 项目中存储上传文件的根目录
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 """

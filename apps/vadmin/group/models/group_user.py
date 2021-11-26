@@ -18,5 +18,9 @@ class GroupUser(CoreModel):
         related_name="%(class)s"
     )
 
+    class Meta:
+        verbose_name = 'GroupUser'
+        verbose_name_plural = verbose_name
+
     def __str__(self):
         return "%s" % self.id

@@ -9,24 +9,20 @@ from apps.vadmin.op_drf.models import CoreModel
 
 
 class UserProfile(AbstractUser, CoreModel):
-    USER_TYPE_CHOICES = (
-        (0, "后台用户"),
-        (1, "前台用户"),
-    )
     objects = UserManager()
     full_name = CharField(max_length=50, null=True, blank=True)
-    username = CharField(max_length=150, unique=True, db_index=True, verbose_name='Đăng nhập')
-    secret = CharField(max_length=255, default=uuid4, verbose_name='加密秘钥')
-    email = CharField(max_length=255, verbose_name="邮箱", null=True, blank=True)
-    mobile = CharField(max_length=255, verbose_name="电话", null=True, blank=True)
-    avatar = TextField(verbose_name="头像", null=True, blank=True)
-    name = CharField(max_length=40, verbose_name="姓名")
-    gender = CharField(max_length=8, verbose_name="性别", null=True, blank=True)
-    remark = TextField(verbose_name="备注", null=True)
-    user_type = IntegerField(default=0, verbose_name="用户类型")
-    post = ManyToManyField(to='permission.Post', verbose_name='关联岗位', db_constraint=False)
-    role = ManyToManyField(to='permission.Role', verbose_name='关联角色', db_constraint=False)
-    dept = ForeignKey(to='permission.Dept', verbose_name='归属部门', on_delete=CASCADE, db_constraint=False, null=True,
+    username = CharField(max_length=150, unique=True, db_index=True, verbose_name='username')
+    secret = CharField(max_length=255, default=uuid4, verbose_name='secret')
+    email = CharField(max_length=255, verbose_name="email", null=True, blank=True)
+    mobile = CharField(max_length=255, verbose_name="mobile", null=True, blank=True)
+    avatar = TextField(verbose_name="avatar", null=True, blank=True)
+    name = CharField(max_length=40, verbose_name="name")
+    gender = CharField(max_length=8, verbose_name="gender", null=True, blank=True)
+    remark = TextField(verbose_name="remark", null=True)
+    user_type = IntegerField(default=0, verbose_name="user_type")
+    post = ManyToManyField(to='permission.Post', verbose_name='post', db_constraint=False)
+    role = ManyToManyField(to='permission.Role', verbose_name='role', db_constraint=False)
+    dept = ForeignKey(to='permission.Dept', verbose_name='dept', on_delete=CASCADE, db_constraint=False, null=True,
                       blank=True)
 
     @property
@@ -58,7 +54,7 @@ class UserProfile(AbstractUser, CoreModel):
 
     class Meta:
         abstract = settings.AUTH_USER_MODEL != 'permission.UserProfile'
-        verbose_name = '用户管理'
+        verbose_name = 'Quan ly nguoi dung'
         verbose_name_plural = verbose_name
 
     def __str__(self):

@@ -21,27 +21,27 @@ class BaseModel(models.Model):
 
 class CoreModel(models.Model):
     """
-    核心标准抽象模型模型,可直接继承使用
-    增加审计字段, 覆盖字段时, 字段名称请勿修改, 必须统一审计字段名称
+    Mô hình mô hình trừu tượng tiêu chuẩn cốt lõi, có thể được kế thừa và sử dụng trực tiếp
+    Thêm trường kiểm toán, khi ghi đè các trường, không được sửa đổi tên trường, bạn phải thống nhất tên trường kiểm tra
     """
-    description = DescriptionField()  # 描述
+    description = DescriptionField()
     creator = models.ForeignKey(to=settings.AUTH_USER_MODEL, related_query_name='creator_query', null=True,
-                                verbose_name='user_create', on_delete=SET_NULL, db_constraint=False)  # 创建者
-    modifier = ModifierCharField()  # 修改者
+                                verbose_name='user_create', on_delete=SET_NULL, db_constraint=False)
+    modifier = ModifierCharField()
     dept_belong_id = models.CharField(max_length=64, verbose_name="Data attribution department", null=True, blank=True)
-    update_datetime = UpdateDateTimeField()  # 修改时间
-    create_datetime = CreateDateTimeField()  # 创建时间
+    update_datetime = UpdateDateTimeField()
+    create_datetime = CreateDateTimeField()
 
     class Meta:
         abstract = True
-        verbose_name = '核心模型'
+        verbose_name = 'Mô hình cốt lõi'
         verbose_name_plural = verbose_name
 
 
 class BaseTimeStampModel(models.Model):
     dept_belong_id = models.CharField(max_length=64, verbose_name="Data attribution department", null=True, blank=True)
-    update_datetime = UpdateDateTimeField()  # 修改时间
-    create_datetime = CreateDateTimeField()  # 创建时间
+    update_datetime = UpdateDateTimeField()
+    create_datetime = CreateDateTimeField()
 
     class Meta:
         abstract = True

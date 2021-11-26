@@ -3,14 +3,13 @@ import logging
 from django.conf import settings
 from django.db import models
 
-# from utils.base_models import BaseTimeStampModel
 from apps.vadmin.book.models import Book
-from apps.vadmin.op_drf.models import CoreModel
+from apps.vadmin.op_drf.models import BaseTimeStampModel
 
 logger = logging.getLogger(__name__.split('.')[0])
 
 
-class FollowBook(CoreModel):
+class FollowBook(BaseTimeStampModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

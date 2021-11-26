@@ -6,12 +6,13 @@ from .chapter import Chapter
 # from post.models import Post
 
 from ...op_drf.models import CoreModel
+from ...post.models.post import PostGroup
 
 logger = logging.getLogger(__name__.split('.')[0])
 
 
 class Image(CoreModel):
-    # post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
+    post = models.ForeignKey(PostGroup, null=True, blank=True, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, null=True, blank=True, on_delete=models.CASCADE)
     image = models.FileField(
         upload_to='books/%Y/%m/%d',

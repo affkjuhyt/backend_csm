@@ -90,7 +90,7 @@ class LoginView(ObtainJSONWebToken):
                 key = f"{self.prefix}_{session_id}_{username}"
                 if getattr(settings, "REDIS_ENABLE", False):
                     cache.set(key, token, self.ex.total_seconds())
-                self.save_login_infor(request, '登录成功', session_id=session_id)
+                self.save_login_infor(request, 'Đăng nhập thành công', session_id=session_id)
             if self.JWT_AUTH_COOKIE and token:
                 expiration = (datetime.datetime.utcnow() + self.ex)
                 response.set_cookie(self.JWT_AUTH_COOKIE,
@@ -99,8 +99,8 @@ class LoginView(ObtainJSONWebToken):
                                     domain=settings.SESSION_COOKIE_DOMAIN,
                                     httponly=False)
             return response
-        self.save_login_infor(request, '登录失败，账户/密码不正确', False)
-        return ErrorResponse(data=serializer.errors, msg='账户/密码不正确')
+        self.save_login_infor(request, 'Đăng nhập không thành công/Mật khẩu không đúng', False)
+        return ErrorResponse(data=serializer.errors, msg='Tài khoản / mật khẩu không chính xác')
 
     # def handle_exception(self, exc):
     #     print(exc)

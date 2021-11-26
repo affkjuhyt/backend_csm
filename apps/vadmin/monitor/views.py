@@ -77,7 +77,7 @@ class MonitorModelViewSet(CustomModelViewSet):
         pk = kwargs.get("pk")
         instance = Monitor.objects.filter(server__id=pk).order_by("-create_datetime").first()
         if not instance:
-            return ErrorResponse(msg="未找到服务器信息id")
+            return ErrorResponse(msg="Không tìm thấy id thông tin máy chủ")
         serializer = self.get_serializer(instance)
         data = serializer.data
         return SuccessResponse(data={

@@ -14,5 +14,9 @@ class Group(CoreModel):
     post_count = models.IntegerField(default=0)
     member_count = models.IntegerField(default=0)
 
+    class Meta:
+        verbose_name = 'Group'
+        verbose_name_plural = verbose_name
+
     def __str__(self):
         return "%s" % self.name
