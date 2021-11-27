@@ -189,9 +189,6 @@ class DeptModelViewSet(CustomModelViewSet):
 
 
 class PostModelViewSet(CustomModelViewSet):
-    """
-    岗位管理 的CRUD视图
-    """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     create_serializer_class = PostCreateUpdateSerializer
@@ -202,15 +199,12 @@ class PostModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('postName',)
-    ordering = ['postSort', 'create_datetime']  # 默认排序
-    export_field_data = ['岗位序号', '岗位编码', '岗位名称', '岗位排序', '状态', '创建者', '修改者', '备注']
+    ordering = ['postSort', 'create_datetime']
+    export_field_data = ['STT', 'Ma', 'Chức danh', 'Sắp xếp', 'Trạng thái', 'Người tạo', 'Người biên tập', 'Nhận xét']
     export_serializer_class = ExportPostSerializer
 
 
 class RoleModelViewSet(CustomModelViewSet):
-    """
-    角色管理 的CRUD视图
-    """
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     create_serializer_class = RoleCreateUpdateSerializer
@@ -221,15 +215,12 @@ class RoleModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('roleName',)
-    ordering = 'create_datetime'  # 默认排序
-    export_field_data = ['角色序号', '角色名称', '角色权限', '角色排序', '数据范围', '角色状态', '创建者', '修改者', '备注']
+    ordering = 'create_datetime'
+    export_field_data = ['STT', 'Tên vai trò', 'Quyền của vai trò', 'Xếp hạng', 'Phạm vi', 'Tình trạng', 'Người tạo', 'Người biên tập', 'Nhận xét']
     export_serializer_class = ExportRoleSerializer
 
 
 class UserProfileModelViewSet(CustomModelViewSet):
-    """
-    用户管理 的CRUD视图
-    """
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     create_serializer_class = UserProfileCreateUpdateSerializer
@@ -321,13 +312,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def put_profile(self, request: Request, *args, **kwargs):
-        """
-        更新用户个人信息
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.user.id)
         instance.name = request.data.get('name', None)
         instance.mobile = request.data.get('mobile', None)

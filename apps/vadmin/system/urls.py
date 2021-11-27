@@ -1,6 +1,7 @@
 from django.urls import re_path
 from rest_framework.routers import DefaultRouter
 
+from apps.vadmin.post.views import PostGroupDataModelViewSet
 from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewSet, \
     ConfigSettingsModelViewSet, SaveFileModelViewSet, MessagePushModelViewSet, LoginInforModelViewSet, \
     OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView
@@ -8,11 +9,15 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
 from apps.vadmin.book.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet, \
     ImageDataModelViewSet
 
+from apps.vadmin.group.views import GroupDataModelViewSet
+
 router = DefaultRouter()
 router.register(r'dict/type', DictDataModelViewSet)
 router.register(r'dict/data', DictDetailsModelViewSet)
 router.register(r'book/data', BookDataModelViewSet)
 router.register(r'book/chapter', ChapterDataModelViewSet)
+router.register(r'group', GroupDataModelViewSet)
+router.register(r'post', PostGroupDataModelViewSet)
 router.register(r'config', ConfigSettingsModelViewSet)
 router.register(r'savefile', SaveFileModelViewSet)
 router.register(r'image', ImageDataModelViewSet)
@@ -40,6 +45,10 @@ urlpatterns = [
     re_path('book/chapter/update/', ChapterAdminViewSet.as_view({'put': 'update_chapter'})),
     # 清理字典缓存
     re_path('dict/type/clearCache/', DictDetailsModelViewSet.as_view({'delete': 'clearCache', })),
+    # export Group
+    re_path('group/export', GroupDataModelViewSet.as_view({'get': 'export'})),
+    # clearCache group
+    re_path('group/clearCache', GroupDataModelViewSet.as_view({'delete': 'clearCache'})),
     # 消息通知导出
     re_path('message/export/', MessagePushModelViewSet.as_view({'get': 'export', })),
     # 用户个人消息列表

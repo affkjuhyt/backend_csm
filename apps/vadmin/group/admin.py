@@ -5,10 +5,10 @@ from apps.vadmin.group.models import Group, GroupUser
 
 class GroupAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'post_count', 'member_count', 'description', 'creator')
+        'id', 'name', 'post_count', 'member_count', 'description', 'creator', 'status')
     search_fields = ['name']
     raw_id_fields = []
-    list_filter = ['creator']
+    list_filter = ['creator', 'status']
 
 
 class GroupUserAdmin(admin.ModelAdmin):

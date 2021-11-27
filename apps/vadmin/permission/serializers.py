@@ -278,9 +278,9 @@ class UserProfileCreateUpdateSerializer(CustomModelSerializer):
         return super().validate(attrs)
 
     def save(self, **kwargs):
-        self.validated_data['dept_id'] = self.initial_data.get('deptId', None)
+        # self.validated_data['dept_id'] = self.initial_data.get('deptId', None)
         data = super().save(**kwargs)
-        data.post.set(self.initial_data.get('postIds'))
+        # data.post.set(self.initial_data.get('postIds'))
         data.role.set(self.initial_data.get('roleIds'))
         return data
 
