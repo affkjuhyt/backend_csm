@@ -21,6 +21,6 @@ class PostGroupDataModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     # create_extra_permission_classes = (CommonPermission,)
     search_fields = ('name',)
-    ordering = 'id'
+    ordering = ['-like_count', '-share_count']
     export_field_data = ['ID', 'Tên', 'Số lượng bài viết', 'Số lượng thành viên', 'Mô tả']
     export_serializer_class = ExportPostGroupDataSerializer

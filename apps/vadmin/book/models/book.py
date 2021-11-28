@@ -52,4 +52,4 @@ class Book(CoreModel):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f"f{self.title}"
+        return f"{self.title}"

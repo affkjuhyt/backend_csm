@@ -12,13 +12,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 
-from apps.vadmin.book.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter
-from apps.vadmin.book.models import Book, Chapter
+from apps.vadmin.book.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter, CommentFilter
+from apps.vadmin.book.models import Book, Chapter, Comment
 from apps.vadmin.book.serializers.book import BookDataSerializer, BookDataCreateUpdateSerializer, \
     ExportBookDataSerializer
 from apps.vadmin.book.models.image import Image as ImageBook, Image
 from apps.vadmin.book.serializers.chapter import ChapterDataSerializer, ChapterDataCreateUpdateSerializer, \
     ExportChapterDataSerializer, today_path
+from apps.vadmin.book.serializers.comment import CommentDataSerializer
 from apps.vadmin.book.serializers.image import SaveImageSerializer, SaveImageCreateUpdateSerializer, ImageDataSerializer
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
@@ -179,3 +180,13 @@ class ImageDataModelViewSet(CustomModelViewSet):
         list_images = SaveImageSerializer(result_page, context={"request": request}, many=True)
 
         return paginator.get_paginated_response(list_images.data)
+
+
+class CommentAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
+    serializer_class = CommentDataSerializer
+    filter_class = CommentFilter
+    search_fields = ('chapter', 'book',)
+    ordering = '-like_count'
+
+    def get_queryset(self):
+        return Comment.objects.filter()

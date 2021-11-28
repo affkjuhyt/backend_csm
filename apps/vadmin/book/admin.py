@@ -30,8 +30,8 @@ class ImagesAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'chapter', 'user', 'content', 'like_count')
-    list_filter = ['user', 'chapter']
+    list_display = ('id', 'book', 'chapter', 'user', 'content', 'like_count')
+    list_filter = ['user', 'book']
 
 
 class ReplyAdmin(admin.ModelAdmin):

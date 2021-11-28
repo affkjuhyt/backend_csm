@@ -13,12 +13,17 @@ class CommentDataSerializer(CustomModelSerializer):
 
     class Meta:
         model = Comment
-        exclude = ('creator', 'modifier')
+        fields = '__all__'
 
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['name_book'] = instance.book.title
-    #     return response
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['book'] = instance.book.title
+        if not instance.chapter:
+            response['chapter'] = ""
+        else:
+            response['chapter'] = instance.chapter.title
+        response['user'] = instance.user.username
+        return response
 
 
 class ExportCommentDataSerializer(CustomModelSerializer):

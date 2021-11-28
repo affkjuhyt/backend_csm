@@ -1,6 +1,6 @@
 import django_filters
 
-from apps.vadmin.book.models import Book, Chapter, Image
+from apps.vadmin.book.models import Book, Chapter, Image, Comment
 from django.db import models
 
 
@@ -39,3 +39,15 @@ class SaveImageFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = Image
         exclude = ('image',)
+
+
+class CommentFilter(django_filters.rest_framework.FilterSet):
+    """
+    Filter comment
+    """
+    book = django_filters.CharFilter(lookup_expr='icontains')
+    chapter = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
