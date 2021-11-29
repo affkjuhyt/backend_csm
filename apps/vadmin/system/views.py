@@ -1,15 +1,28 @@
+import datetime
 import os
+from datetime import date
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from requests import Response
+from rest_framework import generics, viewsets, status
+from rest_framework.decorators import action, api_view
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSetMixin
 
+from apps.vadmin.book.models import Book, Comment, Reply, TagBook, Tag
+from apps.vadmin.book.serializers.book import BookDataSerializer
 from apps.vadmin.op_drf.filters import DataLevelPermissionsFilter
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
-from apps.vadmin.permission.permissions import CommonPermission
+from apps.vadmin.permission.filters import UserProfile
+from apps.vadmin.permission.permissions import CommonPermission, User
+from apps.vadmin.post.models import PostGroup
 from apps.vadmin.system.filters import DictDetailsFilter, DictDataFilter, ConfigSettingsFilter, MessagePushFilter, \
     SaveFileFilter, LoginInforFilter, OperationLogFilter, CeleryLogFilter
 from apps.vadmin.system.models import DictData, DictDetails, ConfigSettings, SaveFile, MessagePush
@@ -315,9 +328,6 @@ class OperationLogModelViewSet(CustomModelViewSet):
 
 
 class CeleryLogModelViewSet(CustomModelViewSet):
-    """
-   定时任务日志 模型的CRUD视图
-   """
     queryset = CeleryLog.objects.all()
     serializer_class = CeleryLogSerializer
     extra_filter_backends = [DataLevelPermissionsFilter]
@@ -330,30 +340,71 @@ class CeleryLogModelViewSet(CustomModelViewSet):
     export_serializer_class = ExportCeleryLogSerializer
 
     def clean_all(self, request: Request, *args, **kwargs):
-        """
-        清空定时任务日志
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         self.get_queryset().delete()
         return SuccessResponse(msg="清空成功")
 
 
 class SystemInfoApiView(APIView):
-    """
-    系统服务监控视图
-    """
 
     def get(self, request, *args, **kwargs):
-        # 获取内存使用率
         memory_used_percent = get_memory_used_percent()
-        # 获取cpu使用率
         cpu_used_percent = get_cpu_used_percent()
-        # 获取硬盘使用率
         disk_used_percent = get_disk_used_percent()
         return SuccessResponse(data={"memory_used_percent": memory_used_percent,
                                      "cpu_used_percent": cpu_used_percent,
                                      "disk_used_percent": disk_used_percent
                                      })
+
+
+class DashboardApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        result = Book.objects.filter().count()
+        comment = Comment.objects.filter().count()
+        reply = Reply.objects.filter().count()
+        result1 = comment + reply
+        user = User.objects.filter().count()
+        post = PostGroup.objects.filter().count()
+        return SuccessResponse(data={"count_book": result,
+                                     "count_comment": result1,
+                                     "count_user": user,
+                                     "count_post": post})
+
+
+class PieChartApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        tag_ids = Tag.objects.filter().values_list('id')
+        book = Book.objects.filter().count()
+        response = {}
+        for tag_id in tag_ids:
+            tag_book = TagBook.objects.filter(tag=tag_id).count()
+            tag_name = Tag.objects.filter(pk__in=tag_id).first().name
+            response[tag_name] = round((tag_book / book * 100), 2)
+
+        return SuccessResponse(data=response)
+
+
+class BarChartApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        response = {}
+        # Get ra 3 truyen co so like nhieu nhat
+        book = Book.objects.filter().order_by('-like_count')[:3]
+        response['bookA'] = book[0].title
+        response['bookB'] = book[1].title
+        response['bookC'] = book[2].title
+
+        return SuccessResponse(data=response)
+
+
+class GetCommentDayView(APIView):
+    def get(self, request, *args, **kwargs):
+        response = {}
+        book = Book.objects.filter().order_by('-like_count')[:3]
+        today = datetime.datetime.today().weekday()
+        weekDays = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+        # Find out what day of the week is this year's
+        thisXMasDayAsString = weekDays[today]
+        breakpoint()
+        response['Monday'] = Comment.objects.filter(book__title=book[0].title).filter()
+        comment = Comment.objects.filter(book__title=book[0].title).filter()
+
+        return SuccessResponse(data=response)

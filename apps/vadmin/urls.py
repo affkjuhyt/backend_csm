@@ -18,9 +18,7 @@ from captcha.conf import settings as ca_settings
 from captcha.helpers import captcha_image_url, captcha_audio_url
 from captcha.models import CaptchaStore
 from django.conf.urls import url
-from django.contrib import admin
-from django.urls import re_path, include, path
-from rest_framework.documentation import include_docs_urls
+from django.urls import re_path, include
 from rest_framework.views import APIView
 
 from apps.vadmin.permission.views import GetUserProfileView, GetRouters
@@ -49,8 +47,8 @@ urlpatterns = [
     re_path(r'^logout/$', LogoutView.as_view()),
     re_path(r'^getInfo/$', GetUserProfileView.as_view()),
     re_path(r'^getRouters/$', GetRouters.as_view()),
-    url(r"captcha/refresh/$", CaptchaRefresh.as_view(), name="captcha-refresh"),  # 刷新验证码
-    re_path('captcha/', include('captcha.urls')),  # 图片验证码 路由
+    url(r"captcha/refresh/$", CaptchaRefresh.as_view(), name="captcha-refresh"),
+    re_path('captcha/', include('captcha.urls')),
     re_path(r'^permission/', include('apps.vadmin.permission.urls')),
     re_path(r'^system/', include('apps.vadmin.system.urls')),
     re_path(r'^celery/', include('apps.vadmin.celery.urls')),

@@ -45,8 +45,8 @@ class CommentFilter(django_filters.rest_framework.FilterSet):
     """
     Filter comment
     """
-    book = django_filters.CharFilter(lookup_expr='icontains')
-    chapter = django_filters.CharFilter(lookup_expr='icontains')
+    # book = django_filters.CharFilter(lookup_expr='icontains')
+    # chapter = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Comment

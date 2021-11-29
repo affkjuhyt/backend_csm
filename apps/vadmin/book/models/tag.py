@@ -15,8 +15,8 @@ class Tag(BaseTimeStampModel):
 
 
 class TagBook(BaseTimeStampModel):
-    tag = models.ForeignKey(Tag, null=False, on_delete=models.CASCADE, verbose_name="tag")
-    book = models.ForeignKey(Book, null=False, on_delete=models.CASCADE, verbose_name="book")
+    tag = models.ForeignKey(Tag, null=False, on_delete=models.CASCADE, verbose_name="tag", blank=True)
+    book = models.ForeignKey(Book, null=False, on_delete=models.CASCADE, verbose_name="book", blank=True)
 
     def __str__(self):
         return "%s" % self.id

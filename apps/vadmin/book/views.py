@@ -19,7 +19,8 @@ from apps.vadmin.book.serializers.book import BookDataSerializer, BookDataCreate
 from apps.vadmin.book.models.image import Image as ImageBook, Image
 from apps.vadmin.book.serializers.chapter import ChapterDataSerializer, ChapterDataCreateUpdateSerializer, \
     ExportChapterDataSerializer, today_path
-from apps.vadmin.book.serializers.comment import CommentDataSerializer
+from apps.vadmin.book.serializers.comment import CommentDataSerializer, CommentDataCreateUpdateSerializer, \
+    ExportCommentDataSerializer
 from apps.vadmin.book.serializers.image import SaveImageSerializer, SaveImageCreateUpdateSerializer, ImageDataSerializer
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
@@ -79,7 +80,7 @@ class ChapterDataModelViewSet(CustomModelViewSet):
         paginator.page_query_param = 'pageNum'
         book_id = int(request.GET.get('book'))
         title = request.GET.get('title')
-        if not title:
+        if not title or title == '':
             paginator.page_size = 3000
             title = ""
         if not book_id:
@@ -182,11 +183,19 @@ class ImageDataModelViewSet(CustomModelViewSet):
         return paginator.get_paginated_response(list_images.data)
 
 
-class CommentAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
+class CommentAdminViewSet(CustomModelViewSet):
     serializer_class = CommentDataSerializer
     filter_class = CommentFilter
+    create_serializer_class = CommentDataCreateUpdateSerializer
+    update_serializer_class = CommentDataCreateUpdateSerializer
+    # extra_filter_backends = [DataLevelPermissionsFilter]
+    update_extra_permission_classes = (CommonPermission,)
+    destroy_extra_permission_classes = (CommonPermission,)
+    create_extra_permission_classes = (CommonPermission,)
     search_fields = ('chapter', 'book',)
     ordering = '-like_count'
+    export_field_data = ['ID', 'Tên', 'Tác giả', 'Trạng thái', 'Thể loại', 'Star', 'View', 'Like', 'Miêu tả']
+    export_serializer_class = ExportCommentDataSerializer
 
     def get_queryset(self):
         return Comment.objects.filter()
