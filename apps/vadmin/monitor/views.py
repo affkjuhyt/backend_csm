@@ -36,20 +36,12 @@ class MonitorModelViewSet(CustomModelViewSet):
     update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
-    ordering = '-create_datetime'  # 默认排序
+    ordering = '-create_datetime'
 
     def get_rate_info(self, request: Request, *args, **kwargs):
-        """
-        获取使用率 监控信息
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         pk = kwargs.get("pk")
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.filter(server__id=pk).order_by("create_datetime")
-        # 间隔取值
         queryset_count = queryset.count()
         Interval_num = 1 if queryset_count < 200 else int(queryset_count / 100)
         queryset = queryset.values('cpu_sys', 'mem_num', 'mem_sys', 'create_datetime')[::Interval_num][:100]
@@ -67,13 +59,6 @@ class MonitorModelViewSet(CustomModelViewSet):
         return SuccessResponse(data=data)
 
     def get_monitor_info(self, request: Request, *args, **kwargs):
-        """
-        最新的服务器状态信息
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         pk = kwargs.get("pk")
         instance = Monitor.objects.filter(server__id=pk).order_by("-create_datetime").first()
         if not instance:

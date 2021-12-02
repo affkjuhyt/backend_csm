@@ -374,13 +374,20 @@ class PieChartApiView(APIView):
     def get(self, request, *args, **kwargs):
         tag_ids = Tag.objects.filter().values_list('id')
         book = Book.objects.filter().count()
-        response = {}
+        # response = {}
+        list = []
         for tag_id in tag_ids:
+            key = {}
             tag_book = TagBook.objects.filter(tag=tag_id).count()
             tag_name = Tag.objects.filter(pk__in=tag_id).first().name
-            response[tag_name] = round((tag_book / book * 100), 2)
+            # tag_id = Tag.objects.filter(pk__in=tag_id).first().id
+            key['key'] = tag_name
+            key['value'] = tag_book
+            list.append(key)
+            # list
+            # response.update(key)
 
-        return SuccessResponse(data=response)
+        return SuccessResponse(data=list)
 
 
 class BarChartApiView(APIView):
@@ -398,13 +405,26 @@ class BarChartApiView(APIView):
 class GetCommentDayView(APIView):
     def get(self, request, *args, **kwargs):
         response = {}
-        book = Book.objects.filter().order_by('-like_count')[:3]
         today = datetime.datetime.today().weekday()
-        weekDays = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-        # Find out what day of the week is this year's
-        thisXMasDayAsString = weekDays[today]
-        breakpoint()
-        response['Monday'] = Comment.objects.filter(book__title=book[0].title).filter()
-        comment = Comment.objects.filter(book__title=book[0].title).filter()
+        response['Mon'] = PostGroup.objects.filter(
+            create_datetime__gte=(datetime.datetime.now() - datetime.timedelta(days=today))).count()
+        response['Tue'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=1)).count()
+        response['Wed'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=2)).count()
+        response['Thu'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=3)).count()
+        response['Fri'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=4)).count()
+        response['Sat'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=5)).count()
+        response['Sun'] = PostGroup.objects.filter(
+            create_datetime__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+                days=6)).count()
 
         return SuccessResponse(data=response)
