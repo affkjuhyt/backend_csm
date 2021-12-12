@@ -144,10 +144,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # 收集静态文件，必须将 MEDIA_ROOT,STATICFILES_DIRS先注释
 # python manage.py collectstatic
-STATIC_ROOT=os.path.join(BASE_DIR,'static')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+STATIC_ROOT=os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+# ]
 if not os.path.exists(os.path.join(BASE_DIR, 'media')):
     os.makedirs(os.path.join(BASE_DIR, 'media'))
 MEDIA_URL = "/media/"
