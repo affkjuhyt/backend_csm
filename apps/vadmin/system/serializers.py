@@ -7,10 +7,6 @@ from apps.vadmin.system.models import DictData, DictDetails, ConfigSettings, Sav
 from apps.vadmin.system.models import LoginInfor, OperationLog, CeleryLog
 
 
-# ================================================= #
-# ************** 字典管理 序列化器  ************** #
-# ================================================= #
-
 class DictDataSerializer(CustomModelSerializer):
 
     class Meta:
@@ -30,10 +26,6 @@ class DictDataCreateUpdateSerializer(CustomModelSerializer):
         model = DictData
         fields = '__all__'
 
-
-# ================================================= #
-# ************** 字典详情 序列化器  ************** #
-# ================================================= #
 
 class DictDetailsSerializer(CustomModelSerializer):
     dictType = serializers.CharField(source='dict_data.dictType', default='', read_only=True)
@@ -68,10 +60,6 @@ class DictDetailsCreateUpdateSerializer(CustomModelSerializer):
         fields = '__all__'
 
 
-# ================================================= #
-# ************** 参数设置 序列化器  ************** #
-# ================================================= #
-
 class ConfigSettingsSerializer(CustomModelSerializer):
 
     class Meta:
@@ -98,10 +86,6 @@ class ConfigSettingsCreateUpdateSerializer(CustomModelSerializer):
         model = ConfigSettings
         fields = '__all__'
 
-
-# ================================================= #
-# ************** 文件管理 序列化器  ************** #
-# ================================================= #
 
 class SaveFileSerializer(CustomModelSerializer):
     file_url = serializers.CharField(source='file.url', read_only=True)
@@ -132,9 +116,6 @@ class SaveFileCreateUpdateSerializer(CustomModelSerializer):
         fields = '__all__'
 
 
-# ================================================= #
-# ************** 消息通知 序列化器  ************** #
-# ================================================= #
 class MessagePushSerializer(CustomModelSerializer):
     """
     消息通知 简单序列化器
@@ -197,10 +178,6 @@ class MessagePushUserSerializer(CustomModelSerializer):
         return super().save(**kwargs)
 
 
-# ================================================= #
-# ************** 登录日志 序列化器  ************** #
-# ================================================= #
-
 class LoginInforSerializer(CustomModelSerializer):
     """
     登录日志 简单序列化器
@@ -221,10 +198,6 @@ class ExportLoginInforSerializer(CustomModelSerializer):
         fields = ('id', 'creator_name', 'ipaddr', 'loginLocation', 'browser', 'os',
                   'status', 'msg')
 
-
-# ================================================= #
-# ************** 操作日志 序列化器  ************** #
-# ================================================= #
 
 class OperationLogSerializer(CustomModelSerializer):
     """
@@ -247,10 +220,6 @@ class ExportOperationLogSerializer(CustomModelSerializer):
                   'request_browser', 'response_code', 'request_location', 'request_os', 'json_result', 'status',
                   'creator_name')
 
-
-# ================================================= #
-# ************** celery定时日志 序列化器  ************** #
-# ================================================= #
 
 class CeleryLogSerializer(CustomModelSerializer):
     """

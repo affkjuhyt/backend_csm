@@ -14,6 +14,7 @@ import datetime
 import os
 import sys
 
+from django.conf import settings
 from mongoengine import connect
 
 from conf.env import *
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -48,15 +50,21 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'drf_yasg',
     # app
-    'apps.vadmin.book',
+    'analytics',
+    'authen',
+    'bookcase',
+    'books',
+    'collector',
+    'filemedia',
+    'groups',
+    'posts',
+    'recommender',
+    'userprofile',
     'apps.vadmin.permission',
     'apps.vadmin.op_drf',
     'apps.vadmin.system',
-    'apps.vadmin.group',
-    'apps.vadmin.post',
     'apps.vadmin.celery',
     'apps.vadmin.monitor',
-    'apps.vadmin.userprofile',
 ]
 
 MIDDLEWARE = [
@@ -262,14 +270,37 @@ if locals().get("REDIS_ENABLE", True):
 # ******************** JWT配置  ******************** #
 # ================================================= #
 JWT_AUTH = {
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60 * 60 * 24),  # JWT有效时间24小时
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',  # JWT的Header认证头以'JWT '开始
-    'JWT_AUTH_COOKIE': 'AUTH_JWT',
+    'JWT_ENCODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_encode_handler',
+
+    'JWT_DECODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_decode_handler',
+
+    'JWT_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_payload_handler',
+
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_response_payload_handler',
+
+    'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_GET_USER_SECRET_KEY': None,
+    'JWT_PUBLIC_KEY': None,
+    'JWT_PRIVATE_KEY': None,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
-    'JWT_PAYLOAD_HANDLER': 'apps.vadmin.utils.jwt_util.jwt_payload_handler',
-    'JWT_GET_USER_SECRET_KEY': 'apps.vadmin.utils.jwt_util.jwt_get_user_secret_key',
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'apps.vadmin.utils.jwt_util.jwt_response_payload_handler',
+    'JWT_LEEWAY': 0,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
+
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer', #this most commonly accepted way
+    'JWT_AUTH_COOKIE': None,
 }
 
 # ================================================= #
@@ -277,15 +308,13 @@ JWT_AUTH = {
 # ================================================= #
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'apps.vadmin.utils.authentication.RedisOpAuthJwtAuthentication',
-        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
@@ -337,3 +366,54 @@ CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'  # Back
 INTERFACE_PERMISSION = locals().get("INTERFACE_PERMISSION", False)
 DJANGO_CELERY_BEAT_TZ_AWARE = False
 CELERY_TIMEZONE = 'Asia/Shanghai'  # celery 时区问题
+
+
+import os
+
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+CELERY_REDIS_DB = os.getenv('CELERY_REDIS_DB')
+
+GENERAL_QUEUE = "general"
+MARKET_MAKER_QUEUE = 'market_maker'
+EXCHANGE_QUEUE = 'exchange'
+ETHEREUM_QUEUE = 'Ethereum'
+BITCOIN_QUEUE = 'Bitcoin'
+TRON_QUEUE = 'Tron'
+RIPPLE_QUEUE = 'Ripple'
+
+RQ_QUEUES_NAME = (
+    GENERAL_QUEUE, MARKET_MAKER_QUEUE, EXCHANGE_QUEUE, ETHEREUM_QUEUE, BITCOIN_QUEUE, TRON_QUEUE, RIPPLE_QUEUE
+)
+
+WORKER_NUMBERS = {
+    GENERAL_QUEUE: 2,
+    MARKET_MAKER_QUEUE: 10,
+    EXCHANGE_QUEUE: 40,
+    ETHEREUM_QUEUE: 8,
+    BITCOIN_QUEUE: 1,
+    TRON_QUEUE: 5,
+    RIPPLE_QUEUE: 1
+}
+
+RQ_QUEUES = {
+    k: {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': CELERY_REDIS_DB
+    } for k in RQ_QUEUES_NAME
+}
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    }
+}
+
+REDOC_SETTINGS = {
+   'LAZY_RENDERING': False
+}
+

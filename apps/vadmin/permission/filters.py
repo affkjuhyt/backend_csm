@@ -56,7 +56,7 @@ class UserProfileFilter(django_filters.rest_framework.FilterSet):
     用户管理 简单序过滤器
     """
     username = django_filters.CharFilter(lookup_expr='icontains')
-    mobile = django_filters.CharFilter(lookup_expr='icontains')
+    phone_number = django_filters.CharFilter(lookup_expr='icontains')
     deptId = django_filters.CharFilter(method='filter_deptId')
 
     def filter_deptId(self, queryset, name, value):
@@ -64,4 +64,4 @@ class UserProfileFilter(django_filters.rest_framework.FilterSet):
 
     class Meta:
         model = UserProfile
-        exclude = ('secret', 'password',)
+        exclude = ('secret', 'password', 'avatar')

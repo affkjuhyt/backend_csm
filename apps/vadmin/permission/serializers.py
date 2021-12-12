@@ -213,7 +213,7 @@ class RoleCreateUpdateSerializer(CustomModelSerializer):
 # ================================================= #
 
 
-class UserProfileSerializer(CustomModelSerializer):
+class UserProfileDataSerializer(CustomModelSerializer):
     """
     简单用户序列化器
     """
@@ -248,7 +248,7 @@ class ExportUserProfileSerializer(CustomModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'username', 'name', 'email', 'mobile', 'gender', 'is_active', 'last_login', 'dept__deptName',
+        fields = ('id', 'username', 'name', 'email', 'phone_number', 'gender', 'is_active', 'last_login', 'dept__deptName',
                   'dept__owner')
 
 

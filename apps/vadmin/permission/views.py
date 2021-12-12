@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -8,8 +10,8 @@ from apps.vadmin.op_drf.filters import DataLevelPermissionsFilter
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
 from apps.vadmin.permission.filters import MenuFilter, DeptFilter, PostFilter, RoleFilter, UserProfileFilter
 from apps.vadmin.permission.models import Role, Menu, Dept, Post
-from apps.vadmin.permission.serializers import UserProfileSerializer, MenuSerializer, RoleSerializer, \
-    MenuCreateUpdateSerializer, DeptSerializer, DeptCreateUpdateSerializer, PostSerializer, PostCreateUpdateSerializer, \
+from apps.vadmin.permission.serializers import UserProfileDataSerializer, MenuSerializer, RoleSerializer, \
+    MenuCreateUpdateSerializer, DeptSerializer, DeptCreateUpdateSerializer, PostCreateUpdateSerializer, \
     RoleCreateUpdateSerializer, DeptTreeSerializer, MenuTreeSerializer, UserProfileCreateUpdateSerializer, \
     PostSimpleSerializer, RoleSimpleSerializer, ExportUserProfileSerializer, ExportRoleSerializer, ExportPostSerializer, \
     UserProfileImportSerializer
@@ -22,9 +24,11 @@ class GetUserProfileView(APIView):
     """
     获取用户详细信息
     """
+    # authentication_classes = [BasicAuthentication, SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        user_dict = UserProfileSerializer(request.user).data
+        user_dict = UserProfileDataSerializer(request.user).data
         permissions_list = ['*:*:*'] if user_dict.get('admin') else Menu.objects.filter(
             role__userprofile=request.user).values_list('perms', flat=True)
         delete_cache = request.user.delete_cache
@@ -188,20 +192,20 @@ class DeptModelViewSet(CustomModelViewSet):
         })
 
 
-class PostModelViewSet(CustomModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    create_serializer_class = PostCreateUpdateSerializer
-    update_serializer_class = PostCreateUpdateSerializer
-    filter_class = PostFilter
-    extra_filter_backends = [DataLevelPermissionsFilter]
-    update_extra_permission_classes = (CommonPermission,)
-    destroy_extra_permission_classes = (CommonPermission,)
-    create_extra_permission_classes = (CommonPermission,)
-    search_fields = ('postName',)
-    ordering = ['postSort', 'create_datetime']
-    export_field_data = ['STT', 'Ma', 'Chức danh', 'Sắp xếp', 'Trạng thái', 'Người tạo', 'Người biên tập', 'Nhận xét']
-    export_serializer_class = ExportPostSerializer
+# class PostModelViewSet(CustomModelViewSet):
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#     create_serializer_class = PostCreateUpdateSerializer
+#     update_serializer_class = PostCreateUpdateSerializer
+#     filter_class = PostFilter
+#     extra_filter_backends = [DataLevelPermissionsFilter]
+#     update_extra_permission_classes = (CommonPermission,)
+#     destroy_extra_permission_classes = (CommonPermission,)
+#     create_extra_permission_classes = (CommonPermission,)
+#     search_fields = ('postName',)
+#     ordering = ['postSort', 'create_datetime']
+#     export_field_data = ['STT', 'Ma', 'Chức danh', 'Sắp xếp', 'Trạng thái', 'Người tạo', 'Người biên tập', 'Nhận xét']
+#     export_serializer_class = ExportPostSerializer
 
 
 class RoleModelViewSet(CustomModelViewSet):
@@ -222,7 +226,7 @@ class RoleModelViewSet(CustomModelViewSet):
 
 class UserProfileModelViewSet(CustomModelViewSet):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfileDataSerializer
     create_serializer_class = UserProfileCreateUpdateSerializer
     update_serializer_class = UserProfileCreateUpdateSerializer
     filter_class = UserProfileFilter

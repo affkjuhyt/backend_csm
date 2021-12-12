@@ -1,28 +1,18 @@
 import datetime
 import os
-from datetime import date
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
-from requests import Response
-from rest_framework import generics, viewsets, status
-from rest_framework.decorators import action, api_view
-from rest_framework.generics import ListAPIView
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSetMixin
 
-from apps.vadmin.book.models import Book, Comment, Reply, TagBook, Tag
-from apps.vadmin.book.serializers.book import BookDataSerializer
+from books.models import Book, Comment, Reply, TagBook, Tag
 from apps.vadmin.op_drf.filters import DataLevelPermissionsFilter
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
-from apps.vadmin.permission.filters import UserProfile
 from apps.vadmin.permission.permissions import CommonPermission, User
-from apps.vadmin.post.models import PostGroup
+from posts.models import PostGroup
 from apps.vadmin.system.filters import DictDetailsFilter, DictDataFilter, ConfigSettingsFilter, MessagePushFilter, \
     SaveFileFilter, LoginInforFilter, OperationLogFilter, CeleryLogFilter
 from apps.vadmin.system.models import DictData, DictDetails, ConfigSettings, SaveFile, MessagePush

@@ -1,14 +1,14 @@
 from django.urls import re_path
 from rest_framework.routers import DefaultRouter
 
-from apps.vadmin.permission.views import MenuModelViewSet, DeptModelViewSet, PostModelViewSet, RoleModelViewSet, \
+from apps.vadmin.permission.views import MenuModelViewSet, DeptModelViewSet, RoleModelViewSet, \
     UserProfileModelViewSet
 
 router = DefaultRouter()
 router.register(r'menus', MenuModelViewSet)
 router.register(r'dept', DeptModelViewSet)
 router.register(r'dept/exclude', DeptModelViewSet)
-router.register(r'post', PostModelViewSet)
+# router.register(r'post', PostModelViewSet)
 router.register(r'role', RoleModelViewSet)
 router.register(r'user', UserProfileModelViewSet)
 urlpatterns = [
@@ -37,7 +37,7 @@ urlpatterns = [
     # 导出角色
     re_path('role/export/', RoleModelViewSet.as_view({'get': 'export', })),
     # 导出岗位
-    re_path('post/export/', PostModelViewSet.as_view({'get': 'export', })),
+    # re_path('post/export/', PostModelViewSet.as_view({'get': 'export', })),
     # 用户导入模板下载及导入
     re_path('user/importTemplate/',
             UserProfileModelViewSet.as_view({'get': 'importTemplate', 'post': 'importTemplate'})),
