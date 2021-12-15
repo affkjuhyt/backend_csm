@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -24,8 +24,6 @@ class GetUserProfileView(APIView):
     """
     获取用户详细信息
     """
-    # authentication_classes = [BasicAuthentication, SessionAuthentication]
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user_dict = UserProfileDataSerializer(request.user).data

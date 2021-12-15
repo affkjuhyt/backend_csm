@@ -1,7 +1,7 @@
 import os
 
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "root.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
 
 import django
 from django.db.models import Count

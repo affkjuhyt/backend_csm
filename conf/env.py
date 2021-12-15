@@ -5,13 +5,13 @@
 # 数据库类型 MYSQL/SQLITE3
 DATABASE_TYPE = "MYSQL"
 # 数据库地址
-DATABASE_HOST = "127.0.0.1"
+DATABASE_HOST = "mysql-dbms.czzmd1gas7m7.ap-southeast-1.rds.amazonaws.com"
 # 数据库端口
 DATABASE_PORT = 3306
 # 数据库用户名
-DATABASE_USER = "root"
+DATABASE_USER = "admin"
 # 数据库密码
-DATABASE_PASSWORD = "123456a@"
+DATABASE_PASSWORD = "Thienlinh9911"
 # 数据库名
 DATABASE_NAME = "django-vue-admin"
 

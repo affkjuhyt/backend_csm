@@ -20,7 +20,7 @@ from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 from datetime import datetime
 
-from books.serializers.book import BookAdminSerializer
+from books.serializers.book import BookAdminSerializer, BookAdminViewSerializer
 from books.serializers.chapter import ChapterViewSerializer
 
 today = datetime.now()
@@ -62,7 +62,7 @@ class BookView(ReadOnlyModelViewSet):
             books = Book.objects.filter()
 
         result_page = paginator.paginate_queryset(books, request)
-        serializer = BookSerializer(result_page, context={"request": request}, many=True)
+        serializer = BookAdminViewSerializer(result_page, context={"request": request}, many=True)
         return paginator.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='search')

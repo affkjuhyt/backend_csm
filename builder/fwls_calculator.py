@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
 
 import django
 

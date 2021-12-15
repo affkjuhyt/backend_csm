@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import coo_matrix
 from datetime import datetime
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "root.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
 
 import django
 

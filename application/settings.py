@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+# 导入全局环境变量
 import datetime
 import os
 import sys
 
-from django.conf import settings
 from mongoengine import connect
 
 from conf.env import *
@@ -42,25 +42,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'captcha',
     'django_celery_beat',
-    'drf_yasg',
-    # app
+    'drf_yasg',  # swagger 接口
+    # 自定义app
+    'apps.vadmin.permission',
+    'books',
+    'groups',
     'analytics',
     'authen',
     'bookcase',
-    'books',
     'collector',
-    'filemedia',
-    'groups',
     'posts',
     'recommender',
     'userprofile',
-    'apps.vadmin.permission',
     'apps.vadmin.op_drf',
     'apps.vadmin.system',
     'apps.vadmin.celery',
@@ -79,8 +76,9 @@ MIDDLEWARE = [
     'vadmin.op_drf.middleware.ApiLoggingMiddleware',  # 用于记录API访问日志
     'vadmin.op_drf.middleware.PermissionModeMiddleware',  # 权限中间件
 ]
-
+# 允许跨域源
 CORS_ORIGIN_ALLOW_ALL = CORS_ORIGIN_ALLOW_ALL
+# 允许ajax请求携带cookie
 CORS_ALLOW_CREDENTIALS = CORS_ALLOW_CREDENTIALS
 X_FRAME_OPTIONS = "ALLOW-FROM"
 ROOT_URLCONF = 'application.urls'
@@ -128,29 +126,34 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 # 配置语言
-LANGUAGE_CODE = 'vi-VI'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'zh-hans'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
+"""
+静态目录、多媒体配置
+"""
 # 访问静态文件的url地址前缀
 STATIC_URL = '/static/'
 # 收集静态文件，必须将 MEDIA_ROOT,STATICFILES_DIRS先注释
 # python manage.py collectstatic
-STATIC_ROOT=os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-# ]
+# STATIC_ROOT=os.path.join(BASE_DIR,'static')
+# # 设置django的静态文件目录
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 if not os.path.exists(os.path.join(BASE_DIR, 'media')):
     os.makedirs(os.path.join(BASE_DIR, 'media'))
+# 访问上传文件的url地址前缀
 MEDIA_URL = "/media/"
+# 项目中存储上传文件的根目录
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 """
@@ -227,21 +230,8 @@ LOGGING = {
 # ************** 数据库 配置  ************** #
 # ================================================= #
 
-if DATABASE_TYPE == "POSTGRES":
+if DATABASE_TYPE == "MYSQL":
     # Mysql数据库
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': DATABASE_NAME,
-            'USER': DATABASE_USER,
-            'PASSWORD': DATABASE_PASSWORD,
-            'HOST': DATABASE_HOST,
-            'PORT': DATABASE_PORT,
-            'CONN_MAX_AGE': 1000,
-        }
-    }
-else:
-    # MySql
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
@@ -250,6 +240,14 @@ else:
             "USER": DATABASE_USER,
             "PASSWORD": DATABASE_PASSWORD,
             "NAME": DATABASE_NAME,
+        }
+    }
+else:
+    # sqlite3 数据库
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
@@ -270,37 +268,14 @@ if locals().get("REDIS_ENABLE", True):
 # ******************** JWT配置  ******************** #
 # ================================================= #
 JWT_AUTH = {
-    'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
-
-    'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
-
-    'JWT_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_payload_handler',
-
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
-
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
-
-    'JWT_SECRET_KEY': settings.SECRET_KEY,
-    'JWT_GET_USER_SECRET_KEY': None,
-    'JWT_PUBLIC_KEY': None,
-    'JWT_PRIVATE_KEY': None,
-    'JWT_ALGORITHM': 'HS256',
-    'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
-    'JWT_AUDIENCE': None,
-    'JWT_ISSUER': None,
-
     'JWT_ALLOW_REFRESH': True,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer', #this most commonly accepted way
-    'JWT_AUTH_COOKIE': None,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60 * 60 * 24),  # JWT有效时间24小时
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',  # JWT的Header认证头以'JWT '开始
+    'JWT_AUTH_COOKIE': 'AUTH_JWT',
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_PAYLOAD_HANDLER': 'apps.vadmin.utils.jwt_util.jwt_payload_handler',
+    'JWT_GET_USER_SECRET_KEY': 'apps.vadmin.utils.jwt_util.jwt_get_user_secret_key',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'apps.vadmin.utils.jwt_util.jwt_response_payload_handler',
 }
 
 # ================================================= #
@@ -308,13 +283,15 @@ JWT_AUTH = {
 # ================================================= #
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
+        'apps.vadmin.utils.authentication.RedisOpAuthJwtAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+
     ),
 
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
@@ -367,13 +344,6 @@ INTERFACE_PERMISSION = locals().get("INTERFACE_PERMISSION", False)
 DJANGO_CELERY_BEAT_TZ_AWARE = False
 CELERY_TIMEZONE = 'Asia/Shanghai'  # celery 时区问题
 
-
-import os
-
-REDIS_HOST = os.getenv('REDIS_HOST')
-REDIS_PORT = os.getenv('REDIS_PORT')
-CELERY_REDIS_DB = os.getenv('CELERY_REDIS_DB')
-
 GENERAL_QUEUE = "general"
 MARKET_MAKER_QUEUE = 'market_maker'
 EXCHANGE_QUEUE = 'exchange'
@@ -400,7 +370,7 @@ RQ_QUEUES = {
     k: {
         'HOST': REDIS_HOST,
         'PORT': REDIS_PORT,
-        'DB': CELERY_REDIS_DB
+        # 'DB': CELERY_REDIS_DB
     } for k in RQ_QUEUES_NAME
 }
 
