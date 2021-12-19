@@ -6,6 +6,7 @@ from django.db import models
 from books.models import Book, Chapter
 
 from apps.vadmin.utils.base_models import BaseTimeStampModel
+from posts.models import PostGroup
 
 User = get_user_model()
 
@@ -21,6 +22,7 @@ class Comment(BaseTimeStampModel):
         (DISABLE, 0)
     )
 
+    post = models.ForeignKey(PostGroup, null=True, blank=True, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, null=True, blank=True, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, null=True, blank=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s")

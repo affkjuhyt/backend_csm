@@ -4,10 +4,11 @@ from rest_framework.routers import DefaultRouter
 from posts.views import PostGroupDataModelViewSet
 from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewSet, \
     ConfigSettingsModelViewSet, SaveFileModelViewSet, MessagePushModelViewSet, LoginInforModelViewSet, \
-    OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView, DashboardApiView, PieChartApiView, \
-    BarChartApiView, GetCommentDayView
+    OperationLogModelViewSet, CeleryLogModelViewSet, SystemInfoApiView, DashboardApiView, BookBarChartView, \
+    PieChartApiView, \
+    BarChartApiView, GetCommentDayView, PercentUserApiView, RegisterUserApiView
 
-from books.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet,\
+from books.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet, \
     ImageDataModelViewSet, CommentAdminViewSet
 
 from groups.views import GroupDataModelViewSet
@@ -55,9 +56,12 @@ urlpatterns = [
     re_path('celery_log/clean/', CeleryLogModelViewSet.as_view({'delete': 'clean_all', })),
     re_path('celery_log/export/', CeleryLogModelViewSet.as_view({'get': 'export', })),
     re_path('clearsavefile/', SaveFileModelViewSet.as_view({'post': 'clearsavefile', })),
-    re_path('clearimagefile/', ImageDataModelViewSet.as_view({'post': 'clearimagefile',})),
+    re_path('clearimagefile/', ImageDataModelViewSet.as_view({'post': 'clearimagefile', })),
     re_path('sys/info/', SystemInfoApiView.as_view()),
     re_path('dashboard/', DashboardApiView.as_view()),
+    re_path('percentUser/', PercentUserApiView.as_view()),
+    re_path('registerUser/', RegisterUserApiView.as_view()),
+    re_path('book/barchart', BookBarChartView.as_view()),
     re_path('piechart/', PieChartApiView.as_view()),
     re_path('barchart/', BarChartApiView.as_view()),
     re_path('comment/weekday/', GetCommentDayView.as_view())

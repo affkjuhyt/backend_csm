@@ -36,7 +36,7 @@ class ExportGroupDataSerializer(CustomModelSerializer):
 
     class Meta:
         model = Group
-        fields = ('id', 'name', 'post_count', 'member_count')
+        fields = ('id', 'name', 'post_count', 'member_count', 'description')
 
     # def to_representation(self, instance):
     #     response = super().to_representation(instance)
@@ -57,7 +57,7 @@ class GroupDataCreateUpdateSerializer(CustomModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['id', 'name', 'post_count', 'member_count', 'date_added', 'date_modified', 'is_deleted']
+        fields = ['id', 'name', 'post_count', 'member_count', 'description', 'date_added', 'date_modified', 'is_deleted']
         read_only_fields = ['id']
 
     def __str__(self):

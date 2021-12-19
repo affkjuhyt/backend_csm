@@ -91,11 +91,15 @@ class ChapterDataModelViewSet(CustomModelViewSet):
 
         return paginator.get_paginated_response(list_chapters.data)
 
+    @action(detail=True, methods=['get'], url_path='chapterBarChart')
+    def get_chapter_barchart(self, request):
+        return Response("AAAA")
+
 
 class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
     serializer_class = ChapterDataSerializer
     filter_class = ChapterDataFilter
-    search_fields = ('title',)
+    # search_fields = ('title',)
     ordering = 'number'
 
     def get_queryset(self):
@@ -105,9 +109,10 @@ class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
         zip_import = request.data.get('file')
         data = request.data
         title = data.get('title')
-        number = int(data.get('number'))
-        description = data.get('description')
-        chapter = Chapter.objects.filter(number=number).first()
+        # number = int(data.get('number'))
+        chapter = int(data.get('chapter'))
+        # description = data.get('description')
+        chapter = Chapter.objects.filter(pk=chapter).first()
         # book = Chapter.objects.filter(title=title, number=number, description=description)
         # Get ra name thu muc de luu vao chuong
         # Sau do lay image de luu vao chuong
@@ -142,7 +147,7 @@ class ImageDataModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('configName',)
-    ordering = '-create_datetime'
+    ordering = '-date_added'
 
     def create(self, request: Request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -154,7 +159,7 @@ class ImageDataModelViewSet(CustomModelViewSet):
     def clearimagefile(self, request: Request, *args, **kwargs):
         file_list = get_all_files(os.path.join(settings.MEDIA_ROOT, 'system'))
         queryset_files = [os.path.join(os.path.join(settings.MEDIA_ROOT) + os.sep, ele) for ele in
-                          list(self.get_queryset().values_list('file', flat=True))]
+                          list(self.get_queryset().values_list('image', flat=True))]
         queryset_files_dir = set(map(lambda absdir: os.path.abspath(absdir), queryset_files))
         delete_list = list(set(file_list) - queryset_files_dir)
         delete_files(delete_list)

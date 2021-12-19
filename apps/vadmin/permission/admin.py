@@ -14,7 +14,7 @@ class MenusAdmin(admin.ModelAdmin):
 
 class UserProfilesAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'name', 'gender', 'user_type')
-    search_fields = ['name']
+    search_fields = ['id', 'name']
     raw_id_fields = []
     list_filter = ['gender', 'user_type']
 

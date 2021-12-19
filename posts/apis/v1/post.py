@@ -9,6 +9,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin, ReadOnlyModelViewSet
 
+from books.models import Comment
+from books.serializers import CommentSerializer
+from books.serializers.comment import CommentDataShowSerializer
 from posts.models import PostGroup
 from posts.serializers import PostGroupSerializer
 from application.authentications import BaseUserJWTAuthentication
@@ -33,6 +36,19 @@ class PostView(ReadOnlyModelViewSet):
 
         result_page = paginator.paginate_queryset(posts, request)
         list_comments = PostGroupSerializer(result_page, context={"request": request}, many=True)
+
+        return paginator.get_paginated_response(list_comments.data)
+
+    @action(detail=True, methods=['get'], url_path='comments')
+    def get_comments(self, request, *args, **kwargs):
+        post = self.get_object()
+        comments = Comment.objects.filter(post=post)
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+
+        result_page = paginator.paginate_queryset(comments, request)
+        list_comments = CommentDataShowSerializer(result_page, context={"request": request}, many=True)
 
         return paginator.get_paginated_response(list_comments.data)
 

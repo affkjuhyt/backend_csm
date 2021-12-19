@@ -44,8 +44,12 @@ class SaveImageSerializer(CustomModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['name_chapter'] = instance.chapter.title
-        response['name_book'] = instance.chapter.book.title
+        if instance.chapter is None:
+            response['name_chapter'] = ""
+            response['name_book'] = ""
+        else:
+            response['name_chapter'] = instance.chapter.title
+            response['name_book'] = instance.chapter.book.title
 
         return response
 

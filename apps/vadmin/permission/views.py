@@ -21,10 +21,6 @@ UserProfile = get_user_model()
 
 
 class GetUserProfileView(APIView):
-    """
-    获取用户详细信息
-    """
-
     def get(self, request, format=None):
         user_dict = UserProfileDataSerializer(request.user).data
         permissions_list = ['*:*:*'] if user_dict.get('admin') else Menu.objects.filter(
@@ -38,17 +34,7 @@ class GetUserProfileView(APIView):
 
 
 class GetRouters(APIView):
-    """
-    获取路由详细信息
-    """
-
     def depth_menu(self, menus):
-        """
-        获取菜单(通过前端递归值)
-        :param menus:
-        :return:
-        """
-
         return dict
 
     def get(self, request, format=None):
@@ -77,9 +63,6 @@ class GetRouters(APIView):
 
 
 class MenuModelViewSet(CustomModelViewSet):
-    """
-    菜单模型 的CRUD视图
-    """
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
     create_serializer_class = MenuCreateUpdateSerializer
@@ -126,9 +109,6 @@ class MenuModelViewSet(CustomModelViewSet):
 
 
 class DeptModelViewSet(CustomModelViewSet):
-    """
-    部门管理 的CRUD视图
-    """
     queryset = Dept.objects.all()
     serializer_class = DeptSerializer
     create_serializer_class = DeptCreateUpdateSerializer
@@ -229,10 +209,8 @@ class UserProfileModelViewSet(CustomModelViewSet):
     update_serializer_class = UserProfileCreateUpdateSerializer
     filter_class = UserProfileFilter
     extra_filter_backends = [DataLevelPermissionsFilter]
-    # 导出
     export_serializer_class = ExportUserProfileSerializer
     export_field_data = ['用户序号', '登录名称', '用户名称', '用户邮箱', '手机号码', '用户性别', '帐号状态', '最后登录时间', '部门名称', '部门负责人']
-    # 导入
     import_serializer_class = UserProfileImportSerializer
     import_field_data = {'username': '登录账号', 'name': '用户名称', 'email': '用户邮箱', 'mobile': '手机号码',
                          'gender': '用户性别(男/女/未知)',
@@ -242,16 +220,9 @@ class UserProfileModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('username',)
-    ordering = 'create_datetime'  # 默认排序
+    ordering = 'create_datetime'
 
     def change_status(self, request: Request, *args, **kwargs):
-        """
-        修改用户状态
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.data.get('userId'))
         instance.is_active = request.data.get('status')
         instance.save()
@@ -261,13 +232,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def get_user_details(self, request: Request, *args, **kwargs):
-        """
-        获取用户详情
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         userId = request.query_params.get('userId')
         data = {
             'posts': PostSimpleSerializer(Post.objects.filter(status='1').order_by('postSort'), many=True).data,
@@ -277,20 +241,13 @@ class UserProfileModelViewSet(CustomModelViewSet):
             instance = self.queryset.get(id=userId)
             serializer = self.get_serializer(instance)
             data['data'] = serializer.data
-            data['postIds'] = [ele.get('id') for ele in serializer.data.get('post')]
+            # data['postIds'] = [ele.get('id') for ele in serializer.data.get('post')]
             data['roleIds'] = [ele.get('id') for ele in serializer.data.get('role')]
             if hasattr(self, 'handle_logging'):
                 self.handle_logging(request, instance=instance, *args, **kwargs)
         return SuccessResponse(data)
 
     def reset_pwd(self, request: Request, *args, **kwargs):
-        """
-        重置密码
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.data.get('userId'))
         serializer = self.get_serializer(instance)
         instance.set_password(request.data.get('password'))
@@ -300,13 +257,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def profile(self, request: Request, *args, **kwargs):
-        """
-        获取用户个人信息
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.user.id)
         serializer = self.get_serializer(instance)
         if hasattr(self, 'handle_logging'):
@@ -326,13 +276,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def put_avatar(self, request: Request, *args, **kwargs):
-        """
-        更新用户头像
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.user.id)
         instance.avatar = request.data.get('avatar_url', None)
         instance.save()
@@ -342,13 +285,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def update_pwd(self, request: Request, *args, **kwargs):
-        """
-        个人修改密码
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         instance = self.queryset.get(id=request.user.id)
         instance.password = request.data.get('newPassword', None)
         if not authenticate(username=request.user.username, password=request.data.get('oldPassword', None)):

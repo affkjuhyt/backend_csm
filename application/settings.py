@@ -31,7 +31,7 @@ SECRET_KEY = ')ns9h-%fl^&ro=+-vgl*b-!+a%2=tuwc#&xbpmcavj0*ufpyjh'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ALLOWED_HOSTS
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'captcha',
     'django_celery_beat',
@@ -69,12 +70,14 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'vadmin.op_drf.middleware.ApiLoggingMiddleware',  # 用于记录API访问日志
-    'vadmin.op_drf.middleware.PermissionModeMiddleware',  # 权限中间件
+    # 'vadmin.op_drf.middleware.ApiLoggingMiddleware',  # 用于记录API访问日志
+    # 'vadmin.op_drf.middleware.PermissionModeMiddleware',  # 权限中间件
+
 ]
 # 允许跨域源
 CORS_ORIGIN_ALLOW_ALL = CORS_ORIGIN_ALLOW_ALL
@@ -126,8 +129,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 # 配置语言
-LANGUAGE_CODE = 'zh-hans'
-TIME_ZONE = 'Asia/Shanghai'
+LANGUAGE_CODE = 'vi'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -269,6 +272,7 @@ if locals().get("REDIS_ENABLE", True):
 # ================================================= #
 JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
+    'AUTH_HEADER_TYPES': ('JWT',),
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60 * 60 * 24),  # JWT有效时间24小时
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',  # JWT的Header认证头以'JWT '开始
     'JWT_AUTH_COOKIE': 'AUTH_JWT',
@@ -283,14 +287,18 @@ JWT_AUTH = {
 # ================================================= #
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',
     ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'apps.vadmin.utils.authentication.RedisOpAuthJwtAuthentication',
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
 
     ),
 

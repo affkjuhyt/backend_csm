@@ -18,7 +18,7 @@ def read_csv_books(URL):
             book_id = row[1]
             rating = float(row[2])
             rating_timestamp = row[3]
-            type = row[4]
+            # type = row[4]
             rating = Rating.objects.create(user_id=user_id, book_id=book_id, rating=rating, rating_timestamp=rating_timestamp, type=type)
             rating.save
             print(row)
@@ -39,5 +39,5 @@ def populate():
 
 if __name__ == '__main__':
     print("Starting rating Population script...")
-    delete_db()
+    # delete_db()
     populate()

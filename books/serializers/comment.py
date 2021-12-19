@@ -1,3 +1,4 @@
+import json
 import logging
 
 from rest_framework import serializers
@@ -21,7 +22,12 @@ class ReplySerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         reply = Reply.objects.filter(id=instance.id).first()
-        response['user'] = reply.user.full_name
+        response['user_name'] = reply.user.name
+        try:
+            response['avatar'] = reply.user.avatar.url
+        except:
+            response['avatar'] = ""
+        response['user_id'] = reply.user.id
         response['level'] = reply.user.level
 
         return response
@@ -50,6 +56,44 @@ class CommentSerializer(serializers.ModelSerializer):
             response['time'] = ""
             response['count_reply'] = 0
             response['reply'] = ""
+
+        return response
+
+
+class CommentDataShowSerializer(serializers.ModelSerializer):
+    reply = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'book', 'chapter', 'user', 'content', 'reply', 'date_modified', 'date_added', 'like_count', 'is_deleted']
+        read_only_fields = ['id']
+
+    def get_reply(self, obj):
+        list = []
+        # return list.append(ReplySerializer(Reply.objects.filter(comment=obj).first()).data)
+        data = ReplySerializer(Reply.objects.filter(comment=obj).first()).data
+        list.append(data)
+        return list
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['name'] = instance.user.name
+        response['reply_count'] = Reply.objects.filter(comment=instance).count()
+        try:
+            response['avatar'] = instance.user.avatar.url
+        except:
+            response['avatar'] = ''
+        # replys = Reply.objects.filter(comment=instance).first()
+        # if replys.exists():
+        #     response['user'] = replys.first().user.full_name
+        #     response['level'] = replys.first().user.level
+        #     response['time'] = timezone.now() - replys.first().date_added
+        #     response['count_reply'] = replys.count()
+        # else:
+        #     response['user'] = ""
+        #     response['level'] = ""
+        #     response['time'] = ""
+        #     response['count_reply'] = 0
 
         return response
 
