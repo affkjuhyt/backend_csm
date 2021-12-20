@@ -8,9 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class ViewLogger(object):
-    """
-    基于View视图的日志
-    """
 
     def __init__(self, view=None, request=None, *args, **kwargs) -> None:
         super().__init__()
@@ -31,7 +28,6 @@ class ViewLogger(object):
 
     def logger(self, msg):
         """
-
         :param msg:
         :return: logger
         """

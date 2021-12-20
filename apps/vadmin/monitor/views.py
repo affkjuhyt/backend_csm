@@ -11,9 +11,6 @@ from apps.vadmin.system.models import ConfigSettings
 
 
 class ServerModelViewSet(CustomModelViewSet):
-    """
-    服务器信息 模型的CRUD视图
-    """
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
     update_serializer_class = UpdateServerSerializer
@@ -26,9 +23,6 @@ class ServerModelViewSet(CustomModelViewSet):
 
 
 class MonitorModelViewSet(CustomModelViewSet):
-    """
-    服务器监控信息 模型的CRUD视图
-    """
     queryset = Monitor.objects.all()
     serializer_class = MonitorSerializer
     # extra_filter_backends = [DataLevelPermissionsFilter]
@@ -68,16 +62,16 @@ class MonitorModelViewSet(CustomModelViewSet):
         return SuccessResponse(data={
             "cpu": {
                 "total": int(data.get('cpu_num'), 0),
-                "used": "",  # cpu核心 可不传，如指cpu当前主频，该值可以传
+                "used": "",
                 "rate": float(data.get('cpu_sys', 0)) / 100,
-                "unit": "核心",  # 默认单位 核心
+                "unit": "核心",
             },
             "memory": {
                 "total": int(int(data.get('mem_num', 0)) / 1024),
                 "used": int(int(data.get('mem_sys', 0)) / 1024),
                 "rate": int(data.get('mem_num', 0)) and round(int(data.get('mem_sys', 0)) /
                                                               int(data.get('mem_num', 0)), 4),
-                "unit": "MB",  # 默认单位 MB
+                "unit": "MB",
             },
             "disk": [{
                 "dir_name": ele.get('dir_name'),
@@ -85,13 +79,12 @@ class MonitorModelViewSet(CustomModelViewSet):
                 "used": int(int(ele.get('disk_sys', 0)) / 1024 / 1024 / 1024),
                 "rate": int(ele.get('total', 0)) and round(int(ele.get('disk_sys', 0)) / int(ele.get('total', 0)),
                                                            4),
-                "unit": "GB",  # 默认单位 GB
+                "unit": "GB",
             } for ele in SysFiles.objects.filter(monitor=instance).values('dir_name', 'total', 'disk_sys')]
         })
 
     def enabled_monitor_info(self, request: Request, *args, **kwargs):
         """
-        更新和获取监控信息
         :param request:
         :param args:
         :param kwargs:
@@ -100,7 +93,6 @@ class MonitorModelViewSet(CustomModelViewSet):
         enabled = request.query_params.get('enabled', None)
         save_days = request.query_params.get('save_days', None)
         interval = request.query_params.get('interval', None)
-        # 定时获取系统监控信息
         periodictask_obj = PeriodicTask.objects.filter(task='apps.vadmin.monitor.tasks.get_monitor_info').first()
         if not periodictask_obj:
             intervalschedule_obj, _ = IntervalSchedule.objects.get_or_create(every=5, period="seconds")
@@ -111,7 +103,6 @@ class MonitorModelViewSet(CustomModelViewSet):
             periodictask_obj.enabled = False
             periodictask_obj.save()
 
-        # 定时清理多余 系统监控信息
         clean_task_obj = PeriodicTask.objects.filter(
             task='apps.vadmin.monitor.tasks.clean_surplus_monitor_info').first()
         if not clean_task_obj:
@@ -123,7 +114,6 @@ class MonitorModelViewSet(CustomModelViewSet):
             clean_task_obj.crontab = crontab_obj
             clean_task_obj.enabled = True
             clean_task_obj.save()
-        # 配置添加
         config_obj = ConfigSettings.objects.filter(configKey='sys.monitor.info.save_days').first()
         if not config_obj:
             config_obj = ConfigSettings()
@@ -136,18 +126,14 @@ class MonitorModelViewSet(CustomModelViewSet):
             config_obj.save()
 
         if enabled:
-            # 更新监控状态
             periodictask_obj.enabled = True if enabled == "1" else False
             periodictask_obj.save()
 
-            # 更新 定时清理多余 系统监控信息 状态
             clean_task_obj.enabled = True if enabled == "1" else False
             clean_task_obj.save()
-        # 更新保留天数
         if save_days and config_obj:
             config_obj.configValue = save_days
             config_obj.save()
-        # 更新监控获取频率
         if interval:
             periodictask_obj.interval.every = interval
             periodictask_obj.interval.save()
@@ -159,7 +145,6 @@ class MonitorModelViewSet(CustomModelViewSet):
 
     def clean_all(self, request: Request, *args, **kwargs):
         """
-        清空监控信息
         :param request:
         :param args:
         :param kwargs:

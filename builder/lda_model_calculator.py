@@ -1,23 +1,31 @@
-import logging
-import math
-import operator
 import os
 import sqlite3
-
-import numpy as np
+from tqdm import tqdm
 import psycopg2
-import tqdm
+from scipy.sparse import coo_matrix
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
+import django
 from datetime import datetime
 
-from django.conf import settings
-from gensim import corpora, models, similarities
+from application import settings
+
+import logging
+import numpy as np
+
 import pyLDAvis
-from scipy.sparse import coo_matrix
-from stop_words import get_stop_words
+import pyLDAvis.gensim
+
+import operator
+import math
 
 from nltk.tokenize import RegexpTokenizer
+from stop_words import get_stop_words
+from gensim import corpora, models, similarities
+
+django.setup()
+
 from recommender.models import BookDescriptions, LdaSimilarity
-# from root import settings
 
 
 def dot_product(v1, v2):
@@ -27,9 +35,9 @@ def dot_product(v1, v2):
 
 def vector_cos(v1, v2):
     prod = dot_product(v1, v2)
-    sqrt1 = math.sort(dot_product(v1, v1))
+    sqrt1 = math.sqrt(dot_product(v1, v1))
     sqrt2 = math.sqrt(dot_product(v2, v2))
-    return prod / (sqrt1 + sqrt2)
+    return prod / (sqrt1 * sqrt2)
 
 
 def cosine_similarity(ldas):
@@ -60,7 +68,7 @@ class LdaModel(object):
         self.min_sim = min_sim
         self.db = settings.DATABASES['default']['ENGINE']
 
-    def train(self, data=None, docs=None):
+    def train(self, data = None, docs = None):
 
         if data is None:
             data, docs = load_data()
@@ -83,7 +91,9 @@ class LdaModel(object):
 
         texts = []
         tokenizer = RegexpTokenizer(r'\w+')
+        print("build lda model")
         for d in tqdm(data):
+            print(d)
             raw = d.lower()
 
             tokens = tokenizer.tokenize(raw)
@@ -91,14 +101,17 @@ class LdaModel(object):
             stopped_tokens = self.remove_stopwords(tokens)
 
             stemmed_tokens = stopped_tokens
+            #stemmer = PorterStemmer()
+            #stemmed_tokens = [stemmer.stem(token) for token in stopped_tokens]
 
             texts.append(stemmed_tokens)
 
         dictionary = corpora.Dictionary(texts)
-
+        print("Di qua day")
         corpus = [dictionary.doc2bow(text) for text in texts]
-
-        lda_model = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=n_topics)
+        print("Di qua day 1")
+        lda_model = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary,
+                                                 num_topics=n_topics)
 
         index = similarities.MatrixSimilarity(corpus)
 
@@ -155,8 +168,8 @@ class LdaModel(object):
                 continue
 
             sim = float(csr[x, y])
-            x_id = str(docs[x].book_id)
-            y_id = str(docs[y].book_id)
+            x_id = str(docs[x].id)
+            y_id = str(docs[y].id)
             if sim < self.min_sim:
                 continue
 
@@ -191,8 +204,8 @@ class LdaModel(object):
                 continue
 
             sim = float(csr[x, y])
-            x_id = str(docs[x].book_id)
-            y_id = str(docs[y].book_id)
+            x_id = str(docs[x].id)
+            y_id = str(docs[y].id)
             if sim < self.min_sim:
                 continue
 
@@ -224,10 +237,9 @@ class LdaModel(object):
             conn = sqlite3.connect(dbName)
 
         return conn
+if __name__ == '__main__':
+    print("Calculating lda model...")
 
-
-if __name__=='__main__':
-    print("Calculating lda model")
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     data, docs = load_data()
 

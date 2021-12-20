@@ -15,7 +15,6 @@ from platform import platform
 
 
 def getIP():
-    """获取ipv4地址"""
     dic = psutil.net_if_addrs()
     ipv4_list = []
     for adapter in dic:
@@ -34,13 +33,11 @@ def getIP():
 @BaseCeleryApp(name='apps.vadmin.monitor.tasks.get_monitor_info', save_success_logs=False)
 def get_monitor_info():
     """
-    定时获取系统监控信息
     :return:
     """
-    # 获取服务器
     ip = getIP()
     if not ip:
-        logger.error("无法获取到IP")
+        logger.error("Error IP")
         return
     server_obj, create = Server.objects.get_or_create(ip=ip)
     if create:
@@ -50,7 +47,6 @@ def get_monitor_info():
         server_obj.os = platform(aliased, terse)
         server_obj.save()
 
-    # 获取CPU和内存信息
     mem = psutil.virtual_memory()
     monitor_obj = Monitor()
     monitor_obj.cpu_num = psutil.cpu_count()
@@ -61,7 +57,6 @@ def get_monitor_info():
     monitor_obj.server = server_obj
     monitor_obj.save()
 
-    # 保存磁盘信息
     for ele in psutil.disk_partitions():
         disk = psutil.disk_usage('/')
 
@@ -80,7 +75,6 @@ def get_monitor_info():
 @BaseCeleryApp(name='apps.vadmin.monitor.tasks.clean_surplus_monitor_info')
 def clean_surplus_monitor_info():
     """
-    定时清理多余 系统监控信息
     :return:
     """
     config_settings_obj = ConfigSettings.objects.filter(configKey='sys.monitor.info.save_days').first()

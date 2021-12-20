@@ -43,7 +43,7 @@ class BayesianPersonalizationRanking(object):
 
 
     def initialize_factors(self, train_data, k=25):
-        self.ratings = train_data[['user_id', 'book_id', 'rating']].as_matrix()
+        self.ratings = train_data[['user_id', 'book_id', 'rating']].values
         self.k = k
         self.user_ids = pd.unique(train_data['user_id'])
         self.book_ids = pd.unique(train_data['book_id'])
@@ -198,8 +198,7 @@ def load_all_ratings(min_ratings=1):
     item_count = item_count.reset_index()
     item_ids = item_count[item_count['rating'] > min_ratings]['book_id']
     ratings = ratings[ratings['book_id'].isin(item_ids)]
-
-    ratings['rating'] = ratings['rating'].astype(Decimal)
+    ratings['rating'] = ratings['rating'].apply(Decimal)
     return ratings
 
 

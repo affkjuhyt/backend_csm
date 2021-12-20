@@ -1,3 +1,5 @@
+from asynchat import simple_producer
+
 from django.shortcuts import render
 
 # Create your views here.
@@ -11,8 +13,9 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 
 from analytics.models import Rating
+from apps.vadmin.permission.models import UserProfile
 from collector.models import Log
-from books.models import Book
+from books.models import Book, TagBook, Tag
 from recommender.models import SeededRecs
 from recs.bpr_recommender import BPRRecs
 from recs.content_based_recommender import ContentBasedRecs
@@ -58,11 +61,11 @@ def chart(request, take=10):
     sorted_items = PopularityBasedRecs().recommend_items_from_log(take)
     ids = [i['content_id'] for i in sorted_items]
 
-    ms = {m['book_id']: m['title'] for m in
+    ms = {m['id']: m['title'] for m in
           Book.objects.filter(pk__in=ids).values('title', 'id')}
 
     if len(ms) > 0:
-        sorted_items = [{'book_id': i['content_id'],
+        sorted_items = [{'id': i['content_id'],
                           'title': ms[i['content_id']]} for i in sorted_items]
     else:
         print("No data for chart found. This can either be because of missing data, or missing book data")
@@ -137,20 +140,31 @@ def similar_users(request, user_id, sim_method):
     }
 
     for user in sim_users:
-
         func = switcher.get(sim_method, lambda: "nothing")
         s = func(users, user_id, user['user_id'])
 
         if s > 0.2:
             similarity[user['user_id']] = round(s, 2)
-    topn = sorted(similarity.items(), key=operator.itemgetter(1), reverse=True)[:10]
+
+    topn = sorted(similarity.items(), key=operator.itemgetter(1), reverse=True)[:15]
+    # key = similarity.keys()
+    list = []
+
+    for i in similarity.keys():
+        key = {}
+        user = UserProfile.objects.filter(pk=i).first()
+        if user is None:
+            user = UserProfile.objects.filter(pk=2).first()
+        key['username'] = user.username
+        key['group'] = user.groups.name
+        key['gender'] = user.gender
+        list.append(key)
 
     data = {
         'user_id': user_id,
         'num_books_rated': len(ratings),
         'type': sim_method,
-        'topn': topn,
-        'similarity': topn,
+        'similarity': list,
     }
 
     return JsonResponse(data, safe=False)
@@ -160,9 +174,25 @@ def similar_users(request, user_id, sim_method):
 def similar_content(request, content_id, num=6):
 
     sorted_items = ContentBasedRecs().seeded_rec([content_id], num)
+
+    list = []
+    for i in sorted_items:
+        key = {}
+        book = Book.objects.filter(pk=i['target']).first()
+        key['book_id'] = book.id
+        key['book_name'] = book.title
+        key['author'] = book.author
+        tag_book = TagBook.objects.filter(book=book).values('id')
+        tag = Tag.objects.filter(pk__in=tag_book)
+        if len(tag) == 0:
+            key['book_tag'] = ""
+        else:
+            key['book_tag'] = tag.values('name')
+        list.append(key)
+
     data = {
         'source_id': content_id,
-        'data': sorted_items
+        'data': list
     }
 
     return JsonResponse(data, safe=False)
@@ -173,9 +203,26 @@ def recs_cb(request, user_id, num=6):
 
     sorted_items = ContentBasedRecs().recommend_items(user_id, num)
 
+    list = []
+    for i in sorted_items:
+        key = {}
+        key['book_id'] = i[0]
+        book = Book.objects.filter(pk=i[0]).first()
+        key['book_name'] = book.title
+        key['count_book_similarity'] = i[1]['sim_items'][0]
+        key['point_similarity'] = i[1]['prediction']
+        key['author'] = book.author
+        tag_book = TagBook.objects.filter(book=book).values('id')
+        tag = Tag.objects.filter(pk__in=tag_book)
+        if len(tag) == 0:
+            key['book_tag'] = ""
+        else:
+            key['book_tag'] = tag.values('name')
+        list.append(key)
+
     data = {
         'user_id': user_id,
-        'data': sorted_items
+        'data': list
     }
 
     return JsonResponse(data, safe=False)
@@ -196,6 +243,10 @@ def recs_fwls(request, user_id, num=6):
 def recs_funksvd(request, user_id, num=6):
     sorted_items = FunkSVDRecs().recommend_items(user_id, num)
 
+    list = []
+    for i in sorted_items:
+        key = {}
+
     data = {
         'user_id': user_id,
         'data': sorted_items
@@ -207,9 +258,18 @@ def recs_funksvd(request, user_id, num=6):
 def recs_bpr(request, user_id, num=6):
     sorted_items = BPRRecs().recommend_items(user_id, num)
 
+    list = []
+    for i in sorted_items:
+        key = {}
+        user = UserProfile.objects.filter(pk=i[0]).first()
+        key['user_id'] = user.id
+        key['username'] = user.username
+        key['prediction'] = i[1]['prediction']
+        list.append(key)
+
     data = {
         'user_id': user_id,
-        'data': sorted_items
+        'data': list
     }
     return JsonResponse(data, safe=False)
 

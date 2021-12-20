@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    "django_filters",
     'rest_framework.authtoken',
     'corsheaders',
     'captcha',
@@ -237,7 +238,7 @@ if DATABASE_TYPE == "MYSQL":
     # Mysql数据库
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
+            "ENGINE": "django.db.backends.postgresql",
             "HOST": os.getenv('DATABASE_HOST') or DATABASE_HOST,
             "PORT": DATABASE_PORT,
             "USER": DATABASE_USER,

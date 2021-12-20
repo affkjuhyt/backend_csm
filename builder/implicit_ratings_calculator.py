@@ -56,7 +56,7 @@ def calculate_implicit_ratings_w_timedecay(user_id):
 
     data = query_log_data_for_user(user_id)
 
-    weights = {'read': w1, 'moredetails': w2, 'details': w3}
+    weights = {'read': w1, 'like': w2, 'details': w3}
     ratings = dict()
 
     for entry in data:
@@ -91,7 +91,7 @@ def calculate_implicit_ratings_for_user(user_id):
     ratings = dict()
     for k, v in agg_data .items():
 
-        rating = w1 * v['read'] + w2 * v['details'] + w3 * v['moredetails']
+        rating = w1 * v['read'] + w2 * v['like'] + w3 * v['details']
         max_rating = max(max_rating, rating)
 
         ratings[k] = rating

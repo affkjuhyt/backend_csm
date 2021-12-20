@@ -11,9 +11,9 @@ from apps.vadmin.op_drf.response import SuccessResponse
 
 class IntervalScheduleModelViewSet(CustomModelViewSet):
     """
-    IntervalSchedule 调度间隔模型
-    every 次数
-    period 时间(天,小时,分钟,秒.毫秒)
+    IntervalSchedule
+    every
+    period
     """
     queryset = IntervalSchedule.objects.all()
     serializer_class = IntervalScheduleSerializer
@@ -21,53 +21,53 @@ class IntervalScheduleModelViewSet(CustomModelViewSet):
     update_serializer_class = IntervalScheduleSerializer
     filter_class = IntervalScheduleFilter
     search_fields = ('every', 'period')
-    ordering = 'every'  # 默认排序
+    ordering = 'every'
 
 
 class CrontabScheduleModelViewSet(CustomModelViewSet):
     """
-    CrontabSchedule crontab调度模型
-    minute 分钟
-    hour 小时
-    day_of_week 每周的周几
-    day_of_month 每月的某一天
-    month_of_year 每年的某一个月
+    CrontabSchedule crontab
+    minute
+    hour
+    day_of_week
+    day_of_month
+    month_of_year
 
     """
     queryset = CrontabSchedule.objects.all()
     serializer_class = CrontabScheduleSerializer
     filter_class = CrontabScheduleFilter
     search_fields = ('minute', 'hour')
-    ordering = 'minute'  # 默认排序
+    ordering = 'minute'
 
 
 class PeriodicTaskModelViewSet(CustomModelViewSet):
     """
-    PeriodicTask celery 任务数据模型
-    name 名称
-    task celery任务名称
-    interval 频率
-    crontab 任务编排
-    args 形式参数
-    kwargs 位置参数
-    queue 队列名称
-    exchange 交换
-    routing_key 路由密钥
-    expires 过期时间
-    enabled 是否开启
+    PeriodicTask celery
+    name
+    task celery
+    interval
+    crontab
+    args
+    kwargs
+    queue
+    exchange
+    routing_key
+    expires
+    enabled
 
     """
     queryset = PeriodicTask.objects.exclude(name="celery.backend_cleanup")
     serializer_class = PeriodicTaskSerializer
     filter_class = PeriodicTaskFilter
     search_fields = ('name', 'task', 'date_changed')
-    ordering = 'date_changed'  # 默认排序
+    ordering = 'date_changed'
 
 
 class TasksAsChoices(APIView):
     def get(self, request):
         """
-        获取所有 tasks 名称
+         tasks
         :param request:
         :return:
         """

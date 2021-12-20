@@ -15,14 +15,16 @@ from recommender.models import SeededRecs
 
 def build_association_rules():
     data = retrieve_read_events()
+    print("retrieve read events")
     data = generate_transactions(data)
-
+    print("generate transaction")
     data = calculate_support_confidence(data, 0.01)
+    print("calculate support confidence successfully")
     save_rules(data)
 
 
 def retrieve_read_events():
-    data = Log.objects.filter(event='read').values()
+    data = Log.objects.filter(event='read').values()[:1000]
     return data
 
 
@@ -41,13 +43,10 @@ def generate_transactions(data):
 def calculate_support_confidence(transactions, min_sup=0.01):
 
     N = len(transactions)
-    print(N)
     one_itemsets = calculate_itemsets_one(transactions, min_sup)
-    print(one_itemsets)
     two_itemsets = calculate_itemsets_two(transactions, one_itemsets)
 
     rules = calculate_association_rules(one_itemsets, two_itemsets, N)
-    print(rules)
     return sorted(rules)
 
 
@@ -64,7 +63,6 @@ def calculate_itemsets_one(transactions, min_sup=0.01):
             temp[inx] += 1
 
     print("temp:")
-    print(temp)
     # remove all items that is not supported.
     for key, itemset in temp.items():
         print(f"{key}, {itemset}, {min_sup}, {min_sup * N}")
@@ -92,7 +90,7 @@ def calculate_itemsets_two(transactions, one_itemsets):
 
 def calculate_association_rules(one_itemsets, two_itemsets, N):
     timestamp = datetime.now()
-
+    print("calculate association rules")
     rules = []
     for source, source_freq in one_itemsets.items():
         for key, group_freq in two_itemsets.items():
@@ -102,6 +100,7 @@ def calculate_association_rules(one_itemsets, two_itemsets, N):
                 confidence = group_freq / source_freq
                 rules.append((timestamp, next(iter(source)), next(iter(target)),
                               confidence, support))
+            print(key)
     return rules
 
 
@@ -120,6 +119,7 @@ def save_rules(rules):
             support=rule[3],
             confidence=rule[4]
         ).save()
+        print('Save successfully')
 
 
 if __name__ == '__main__':

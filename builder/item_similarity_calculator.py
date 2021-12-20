@@ -79,7 +79,7 @@ class ItemSimilarityMatrixBuilder(object):
 
             start_time = datetime.now()
             logger.debug('save starting')
-            if self.db == 'django.db.backends.postgresql':
+            if self.db == 'django.db.backends.mysql':
                 self._save_similarities(cor, books)
             else:
                 self._save_with_django(cor, books)
@@ -135,7 +135,7 @@ class ItemSimilarityMatrixBuilder(object):
 
     @staticmethod
     def _get_conn():
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
             dbUsername = settings.DATABASES['default']['USER']
             dbPassword = settings.DATABASES['default']['PASSWORD']
             dbName = settings.DATABASES['default']['NAME']

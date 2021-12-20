@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import logging
 import math
 import os
@@ -10,6 +10,13 @@ from decimal import Decimal
 
 import numpy as np
 import pandas as pd
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
+
+import django
+
+
+django.setup()
 
 from analytics.models import Rating
 from analytics.views import book_rating
@@ -295,7 +302,7 @@ def load_all_ratings(min_ratings=1):
     user_ids = user_count[user_count['book_id'] > min_ratings]['user_id']
     ratings = ratings[ratings['user_id'].isin(user_ids)]
 
-    ratings['rating'] = ratings['rating'].astype(Decimal)
+    ratings['rating'] = ratings['rating'].apply(Decimal)
     return ratings
 
 

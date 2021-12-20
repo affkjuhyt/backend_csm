@@ -1,10 +1,20 @@
-import numpy as np
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")
+
+import django
 from django.db.models import Count
 
 from scipy.sparse import dok_matrix
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import matplotlib as mlt
+mlt.use('TkAgg')
 import matplotlib.pyplot as plt
+
+import numpy as np
+
+django.setup()
 
 from analytics.models import Rating, Cluster
 
@@ -51,7 +61,7 @@ def plot(user_ratings, kmeans, k):
 
 
 class UserClusterCalculator(object):
-    def calculate(self, k = 23):
+    def calculate(self, k=23):
         print("training k-means clustering")
 
         user_ids, user_ratings = self.load_data()
@@ -65,7 +75,7 @@ class UserClusterCalculator(object):
 
 
     @staticmethod
-    def load_data(self):
+    def load_data():
         print('loading data')
         user_ids = list(
             Rating.objects.values('user_id').annotate(book_count=Count('book_id'))
@@ -85,7 +95,7 @@ class UserClusterCalculator(object):
         return user_ids, user_ratings
 
     @staticmethod
-    def save_cluster(self, clusters, user_ids):
+    def save_cluster(clusters, user_ids):
         print("saving clusters")
         Cluster.objects.all().delete()
         for i, clusters_label in enumerate(clusters.labels_):

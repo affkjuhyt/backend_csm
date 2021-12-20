@@ -91,6 +91,13 @@ class BookAdminViewSerializer(serializers.ModelSerializer):
                   'date_added', 'sex', 'status', 'type', 'like_count', 'view_count', 'star', 'is_vip', 'is_full']
         read_only_fields = ['id', 'is_enable']
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        comment_count = Comment.objects.filter(book=instance)
+        response['count_comment'] = comment_count.count()
+
+        return response
+
 
 class BookDataSerializer(CustomModelSerializer):
     """

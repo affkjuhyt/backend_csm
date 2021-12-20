@@ -18,7 +18,7 @@ class PopularityBasedRecs(base_recommender):
     @staticmethod
     def recommend_items_from_log(num=6):
         items = Log.objects.values('content_id')
-        items = items.filter(event='read').annotate(Count('user_id'))
+        items = items.filter(event='details').annotate(Count('user_id'))
 
         sorted_items = sorted(items, key=lambda item: -float(item['user_id__count']))
 
