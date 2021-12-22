@@ -9,7 +9,7 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
     BarChartApiView, GetCommentDayView, PercentUserApiView, RegisterUserApiView
 
 from books.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet, \
-    ImageDataModelViewSet, CommentAdminViewSet
+    ImageDataModelViewSet, CommentAdminViewSet, BookDataAdminViewSet
 
 from groups.views import GroupDataModelViewSet
 
@@ -38,6 +38,7 @@ urlpatterns = [
     re_path('dict/data/export/', DictDetailsModelViewSet.as_view({'get': 'export'})),
     # export data book
     re_path('book/data/export/', BookDataModelViewSet.as_view({'get': 'export'})),
+    re_path('book/data/update', BookDataAdminViewSet.as_view({'put': 'update_book'})),
     # export data chapter
     re_path('book/chapter/export/', ChapterDataModelViewSet.as_view({'get': 'export'})),
     re_path('book/chapter/update/', ChapterAdminViewSet.as_view({'put': 'update_chapter'})),

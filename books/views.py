@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 
 from books.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter, CommentFilter
-from books.models import Book, Chapter, Comment
+from books.models import Book, Chapter, Comment, Tag, TagBook
 from books.serializers.book import BookDataSerializer, BookDataCreateUpdateSerializer, \
     ExportBookDataSerializer
 from books.models.image import Image as ImageBook, Image
@@ -46,6 +46,94 @@ class BookDataModelViewSet(CustomModelViewSet):
     ordering = 'id'
     export_field_data = ['ID', 'Tên', 'Tác giả', 'Trạng thái', 'Thể loại', 'Star', 'View', 'Like', 'Miêu tả']
     export_serializer_class = ExportBookDataSerializer
+
+
+class BookDataAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
+    serializer_class = BookDataSerializer
+    filter_class = BookDataFilter
+    search_fields = ('title', 'type')
+    ordering = 'id'
+
+    def get_queryset(self):
+        return Book.objects.filter()
+
+    def update_book(self, request, *args, **kwargs):
+        zip_import = request.data.get('file')
+        data = request.data
+        if data.get('id') == 'undefined':
+            title = data.get('title')
+            author = data.get('author')
+            type = data.get('type')
+            description = data.get('description')
+            book = Book.objects.create(title=title, author=author, description=description)
+            book.save()
+
+            tag = Tag.objects.create(name=type)
+            tag.save()
+            tag_book = TagBook.objects.create(tag=tag, book=book)
+            tag_book.save()
+
+            zip_file = zipfile.ZipFile(zip_import)
+            chapter = []
+            for name in zip_file.namelist():
+                if ".png" not in name:
+                    name = name[:-1]
+                    chapter.append(name)
+                    Chapter.objects.create(title=name, book_id=book.id)
+                else:
+                    data = zip_file.read(name)
+                    try:
+                        from PIL import Image
+                        image = Image.open(BytesIO(data))
+                        image.load()
+                        image = Image.open(BytesIO(data))
+                        image.verify()
+                    except ImportError:
+                        pass
+                    except:
+                        continue
+                    name = os.path.split(name)[1]
+                    path = os.path.join('books', today_path, name)
+                    saved_path = default_storage.save(path, ContentFile(data))
+                    chapter_last = Chapter.objects.filter().last()
+                    ImageBook.objects.create(image=saved_path, chapter=chapter_last)
+        else:
+            id = int(data.get('id'))
+            title = data.get('title')
+            author = data.get('author')
+            type = data.get('type')
+            description = data.get('description')
+            Book.objects.filter(pk=id).update(description=description, title=title, author=author, type=type)
+            book = Book.objects.filter(pk=id).first()
+
+            # Get ra name thu muc de luu vao chuong
+            # Sau do lay image de luu vao chuong
+            zip_file = zipfile.ZipFile(zip_import)
+            chapter = []
+            for name in zip_file.namelist():
+                if ".png" not in name:
+                    name = name[:-1]
+                    chapter.append(name)
+                    Chapter.objects.create(title=name, book_id=book.id)
+                else:
+                    data = zip_file.read(name)
+                    try:
+                        from PIL import Image
+                        image = Image.open(BytesIO(data))
+                        image.load()
+                        image = Image.open(BytesIO(data))
+                        image.verify()
+                    except ImportError:
+                        pass
+                    except:
+                        continue
+                    name = os.path.split(name)[1]
+                    path = os.path.join('books', today_path, name)
+                    saved_path = default_storage.save(path, ContentFile(data))
+                    chapter_last = Chapter.objects.filter().last()
+                    ImageBook.objects.create(image=saved_path, chapter=chapter_last)
+
+        return Response('Create and update successfully')
 
 
 class ChapterDataModelViewSet(CustomModelViewSet):
@@ -99,7 +187,7 @@ class ChapterDataModelViewSet(CustomModelViewSet):
 class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
     serializer_class = ChapterDataSerializer
     filter_class = ChapterDataFilter
-    # search_fields = ('title',)
+    search_fields = ('title',)
     ordering = 'number'
 
     def get_queryset(self):
@@ -108,31 +196,58 @@ class ChapterAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
     def update_chapter(self, request, *args, **kwargs):
         zip_import = request.data.get('file')
         data = request.data
-        title = data.get('title')
-        # number = int(data.get('number'))
-        chapter = int(data.get('chapter'))
-        # description = data.get('description')
-        chapter = Chapter.objects.filter(pk=chapter).first()
-        # book = Chapter.objects.filter(title=title, number=number, description=description)
-        # Get ra name thu muc de luu vao chuong
-        # Sau do lay image de luu vao chuong
-        zip_file = zipfile.ZipFile(zip_import)
-        for name in zip_file.namelist():
-            data = zip_file.read(name)
-            try:
-                from PIL import Image
-                image = Image.open(BytesIO(data))
-                image.load()
-                image = Image.open(BytesIO(data))
-                image.verify()
-            except ImportError:
-                pass
-            except:
-                continue
-            name = os.path.split(name)[1]
-            path = os.path.join('books', today_path, name)
-            saved_path = default_storage.save(path, ContentFile(data))
-            ImageBook.objects.create(image=saved_path, chapter=chapter)
+        if data.get('id') == 'undefined':
+            title = data.get('title')
+            number = int(data.get('number'))
+            book = int(data.get('book'))
+            description = data.get('description')
+            chapter = Chapter.objects.create(title=title, number=number, book_id=book, description=description)
+            chapter.save()
+
+            zip_file = zipfile.ZipFile(zip_import)
+            for name in zip_file.namelist():
+                data = zip_file.read(name)
+                try:
+                    from PIL import Image
+                    image = Image.open(BytesIO(data))
+                    image.load()
+                    image = Image.open(BytesIO(data))
+                    image.verify()
+                except ImportError:
+                    pass
+                except:
+                    continue
+                name = os.path.split(name)[1]
+                path = os.path.join('books', today_path, name)
+                saved_path = default_storage.save(path, ContentFile(data))
+                ImageBook.objects.create(image=saved_path, chapter=chapter)
+        else:
+            id = int(data.get('id'))
+            description = data.get('description')
+            title = data.get('title')
+            number = data.get('number')
+            Chapter.objects.filter(pk=id).update(description=description, title=title, number=number)
+            chapter = Chapter.objects.filter(pk=id).first()
+
+            # Get ra name thu muc de luu vao chuong
+            # Sau do lay image de luu vao chuong
+            zip_file = zipfile.ZipFile(zip_import)
+            for name in zip_file.namelist():
+                data = zip_file.read(name)
+                try:
+                    from PIL import Image
+                    image = Image.open(BytesIO(data))
+                    image.load()
+                    image = Image.open(BytesIO(data))
+                    image.verify()
+                except ImportError:
+                    pass
+                except:
+                    continue
+                name = os.path.split(name)[1]
+                path = os.path.join('books', today_path, name)
+                saved_path = default_storage.save(path, ContentFile(data))
+                ImageBook.objects.create(image=saved_path, chapter=chapter)
         return Response("Successfully create chapter")
 
 

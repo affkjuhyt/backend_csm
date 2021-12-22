@@ -126,5 +126,5 @@ class BookDataCreateUpdateSerializer(CustomModelSerializer):
 
     class Meta:
         model = Book
-        fields = '__all__'
+        exclude = ('thumbnail',)
 
