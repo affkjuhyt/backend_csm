@@ -13,6 +13,7 @@ class Group(BaseTimeStampModel):
     member_count = models.IntegerField(default=0)
     avatar = models.ImageField(upload_to='groups/avatar/%Y/%m/%d/', null=True, blank=True)
     description = models.TextField(blank=True, null=True, verbose_name='description')
+    # is_enable = models.BooleanField(default=True)
 
     def __str__(self):
         return "%s" % self.name

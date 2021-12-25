@@ -38,8 +38,8 @@ class UserPublicView(ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'], url_path='user_info')
     def get_user_info(self, request, *args, **kwargs):
         user = self.request.user
-        # user_profile = User.objects.filter(id=user.id).first()
-        return Response(user.data)
+        user_serializer = UserProfileSerializer(user)
+        return Response(user_serializer.data)
 
 
 class UpdateInfo(ReadOnlyModelViewSet):

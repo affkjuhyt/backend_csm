@@ -40,7 +40,6 @@ class CommentView(ReadOnlyModelViewSet):
         return paginator.get_paginated_response(list_comments.data)
 
 
-
 class CommentPostView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     authentication_classes = [BaseUserJWTAuthentication]
@@ -51,18 +50,26 @@ class CommentPostView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.Lis
         return Comment.objects.filter()
 
     @action(detail=False, methods=['post'], url_path='post_comment')
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         # serializer = CreateCommentDataSerializer(data=request.data)
-        book = request.data['book']
+        if request.data['book'] == "":
+            book = ""
+        else:
+            book = request.data['book']
+        if request.data['post'] == "":
+            post = ""
+        else:
+            post = request.data['post']
         if request.data['chapter'] == "":
             chapter = ""
         else:
             chapter = request.data['chapter']
-        user = request.data['user']
+        user = request.user
         content = request.data['content']
         try:
-            comment = Comment.objects.create(book_id=book, chapter_id=chapter, user_id=user, content=content)
+            comment = Comment.objects.create(book_id=book, chapter_id=chapter, user=user, content=content,
+                                             post_id=post)
             comment.save()
-            return Response("Create book successfully", status=status.HTTP_200_OK)
+            return Response("Create comment successfully", status=status.HTTP_200_OK)
         except:
-            return Response("Create book false", status=status.HTTP_404_NOT_FOUND)
+            return Response("Create comment false", status=status.HTTP_404_NOT_FOUND)

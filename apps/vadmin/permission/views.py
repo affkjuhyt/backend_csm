@@ -208,7 +208,7 @@ class UserProfileModelViewSet(CustomModelViewSet):
     create_serializer_class = UserProfileCreateUpdateSerializer
     update_serializer_class = UserProfileCreateUpdateSerializer
     filter_class = UserProfileFilter
-    extra_filter_backends = [DataLevelPermissionsFilter]
+    # extra_filter_backends = [DataLevelPermissionsFilter]
     export_serializer_class = ExportUserProfileSerializer
     export_field_data = ['用户序号', '登录名称', '用户名称', '用户邮箱', '手机号码', '用户性别', '帐号状态', '最后登录时间', '部门名称', '部门负责人']
     import_serializer_class = UserProfileImportSerializer
