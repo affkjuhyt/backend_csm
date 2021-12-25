@@ -1,18 +1,13 @@
-from asynchat import simple_producer
-
-from django.shortcuts import render
-
-# Create your views here.
 import operator
 from decimal import Decimal
 from math import sqrt
 
 import numpy as np
 from django.db.models import Avg, Count
-from django.http import JsonResponse
 from rest_framework.decorators import api_view
 
 from analytics.models import Rating
+from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.permission.models import UserProfile
 from collector.models import Log
 from books.models import Book, TagBook, Tag
@@ -31,15 +26,30 @@ def get_association_rules_for(request, content_id, take=6):
                .order_by('-confidence') \
                .values('target', 'confidence', 'support')[:take]
 
-    return JsonResponse(dict(data=list(data)), safe=False)
+    dict = []
+    for i in data:
+        result = {}
+        result["target"] = i['target']
+        result["confidence"] = i['confidence']
+        result["support"] = i['support']
+        book = Book.objects.filter(id=i['target']).first()
+        result["title"] = book.title
+        result["author"] = book.author
+        result["like"] = book.like_count
+        result["view_count"] = book.view_count
+        dict.append(result)
+
+    recs = {"count": data.count(), "results": dict}
+
+    return SuccessResponse(data=recs)
 
 
 @api_view(['GET'])
 def recs_using_association_rules(request, user_id, take=6):
-    events = Log.objects.filter(user_id=user_id)\
-                        .order_by('created')\
-                        .values_list('content_id', flat=True)\
-                        .distinct()
+    events = Log.objects.filter(user_id=user_id) \
+        .order_by('created') \
+        .values_list('content_id', flat=True) \
+        .distinct()
 
     seeds = set(events[:20])
 
@@ -47,13 +57,25 @@ def recs_using_association_rules(request, user_id, take=6):
         .exclude(target__in=seeds) \
         .values('target') \
         .annotate(confidence=Avg('confidence')) \
-        .order_by('-confidence')
+        .order_by('-confidence')[:10]
 
-    recs = [{'id': '{0:07d}'.format(int(rule['target'])),
-             'confidence': rule['confidence']} for rule in rules]
+    dict = []
+    for rule in rules:
+        result = {}
+        result['id'] = '{0:02d}'.format(int(rule['target']))
+        result['confidence'] = rule['confidence']
+        book = Book.objects.filter(id=int(rule['target'])).first()
+        result['title'] = book.title
+        result['author'] = book.author
+        result['like'] = book.like_count
+        result['view_count'] = book.view_count
+        dict.append(result)
 
-    print("recs from association rules: \n{}".format(recs[:take]))
-    return JsonResponse(dict(data=list(recs[:take])))
+    recs = {
+        "count": rules.count(),
+        "results": dict}
+
+    return SuccessResponse(data=recs)
 
 
 @api_view(['GET'])
@@ -66,7 +88,7 @@ def chart(request, take=10):
 
     if len(ms) > 0:
         sorted_items = [{'id': i['content_id'],
-                          'title': ms[i['content_id']]} for i in sorted_items]
+                         'title': ms[i['content_id']]} for i in sorted_items]
     else:
         print("No data for chart found. This can either be because of missing data, or missing book data")
         sorted_items = []
@@ -74,7 +96,7 @@ def chart(request, take=10):
         'data': sorted_items
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data, safe=False)
 
 
 def pearson(users, this_user, that_user):
@@ -158,6 +180,8 @@ def similar_users(request, user_id, sim_method):
         key['username'] = user.username
         key['group'] = user.groups.name
         key['gender'] = user.gender
+        key['role'] = user.role.all().first().roleName
+        key['gender'] = user.gender
         list.append(key)
 
     data = {
@@ -167,12 +191,11 @@ def similar_users(request, user_id, sim_method):
         'similarity': list,
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
 def similar_content(request, content_id, num=6):
-
     sorted_items = ContentBasedRecs().seeded_rec([content_id], num)
 
     list = []
@@ -182,6 +205,8 @@ def similar_content(request, content_id, num=6):
         key['book_id'] = book.id
         key['book_name'] = book.title
         key['author'] = book.author
+        key['like_count'] = book.like_count
+        key['view_count'] = book.view_count
         tag_book = TagBook.objects.filter(book=book).values('id')
         tag = Tag.objects.filter(pk__in=tag_book)
         if len(tag) == 0:
@@ -192,15 +217,14 @@ def similar_content(request, content_id, num=6):
 
     data = {
         'source_id': content_id,
-        'data': list
+        'results': list
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
 def recs_cb(request, user_id, num=6):
-
     sorted_items = ContentBasedRecs().recommend_items(user_id, num)
 
     list = []
@@ -212,6 +236,8 @@ def recs_cb(request, user_id, num=6):
         key['count_book_similarity'] = i[1]['sim_items'][0]
         key['point_similarity'] = i[1]['prediction']
         key['author'] = book.author
+        key['like_count'] = book.like_count
+        key['view_count'] = book.view_count
         tag_book = TagBook.objects.filter(book=book).values('id')
         tag = Tag.objects.filter(pk__in=tag_book)
         if len(tag) == 0:
@@ -222,21 +248,30 @@ def recs_cb(request, user_id, num=6):
 
     data = {
         'user_id': user_id,
-        'data': list
+        'results': list
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
 def recs_fwls(request, user_id, num=6):
     sorted_items = FeatureWeightedLinearStacking().recommend_items(user_id, num)
 
+    list = []
+    for i in sorted_items:
+        key = {}
+        key['id'] = i[0]
+        book = Book.objects.filter(id=i[0]).first()
+        key['title'] = book.title
+        key['author'] = book.author
+        list.append(key)
+
     data = {
         'user_id': user_id,
-        'data': sorted_items
+        'results': list
     }
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
@@ -246,12 +281,20 @@ def recs_funksvd(request, user_id, num=6):
     list = []
     for i in sorted_items:
         key = {}
+        key['id'] = i[0]
+        book = Book.objects.filter(id=i[0]).first()
+        key['title'] = book.title
+        key['author'] = book.author
+        key['like_count'] = book.like_count
+        key['view_count'] = book.view_count
+        key['prediction'] = i[1]['prediction']
+        list.append(key)
 
     data = {
         'user_id': user_id,
-        'data': sorted_items
+        'results': list
     }
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
@@ -265,13 +308,16 @@ def recs_bpr(request, user_id, num=6):
         key['user_id'] = user.id
         key['username'] = user.username
         key['prediction'] = i[1]['prediction']
+        key['gender'] = user.gender
+        key['point'] = user.point
+        key['role'] = user.role.all().first().roleName
         list.append(key)
 
     data = {
         'user_id': user_id,
-        'data': list
+        'results': list
     }
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
@@ -282,21 +328,36 @@ def recs_cf(request, user_id, num=6):
     print(f"cf sorted_items is: {sorted_items}")
     data = {
         'user_id': user_id,
-        'data': sorted_items
+        'results': sorted_items
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
 
 
 @api_view(['GET'])
 def recs_pop(request, user_id, num=60):
     top_num = PopularityBasedRecs().recommend_items(user_id, num)
+
+    list = []
+    for i in top_num:
+        book = Book.objects.filter(id=i['book_id']).first()
+        key = {}
+        key['id'] = i['book_id']
+        key['title'] = book.title
+        key['author'] = book.author
+        key['like_count'] = book.like_count
+        key['view_count'] = book.view_count
+        key['user_id__count'] = i['user_id__count']
+        key['rating__avg'] = format(i['rating__avg'], "0.3f")
+        list.append(key)
+
     data = {
         'user_id': user_id,
-        'data': top_num[:num]
+        'results': list[:num]
     }
 
-    return JsonResponse(data, safe=False)
+    return SuccessResponse(data)
+
 
 def lda2array(lda_vector, len):
     vec = np.zeros(len)

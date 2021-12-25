@@ -84,12 +84,6 @@ class MonitorModelViewSet(CustomModelViewSet):
         })
 
     def enabled_monitor_info(self, request: Request, *args, **kwargs):
-        """
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         enabled = request.query_params.get('enabled', None)
         save_days = request.query_params.get('save_days', None)
         interval = request.query_params.get('interval', None)
@@ -144,11 +138,5 @@ class MonitorModelViewSet(CustomModelViewSet):
         })
 
     def clean_all(self, request: Request, *args, **kwargs):
-        """
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         self.get_queryset().delete()
         return SuccessResponse(msg="清空成功")

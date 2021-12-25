@@ -18,9 +18,16 @@ class TagSerializer(serializers.ModelSerializer):
 
     def get_book(self, obj):
         tag_book_ids = TagBook.objects.filter(tag__name=obj.name).values_list('book')
-        books = Book.objects.filter(pk__in=tag_book_ids)
+        books = Book.objects.filter(pk__in=tag_book_ids)[:50]
 
         return BookAdminViewSerializer(books, many=True).data
+
+
+class TagPublicViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'date_modified', 'date_added', 'is_deleted']
+        read_only_fields = ['id']
 
 
 class TagBookSerializer(serializers.ModelSerializer):

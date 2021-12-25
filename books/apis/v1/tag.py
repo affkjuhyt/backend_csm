@@ -16,5 +16,5 @@ class TagView(ReadOnlyModelViewSet):
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_queryset(self):
-        return Tag.objects.filter().order_by('?')
+        return Tag.objects.filter()
 
