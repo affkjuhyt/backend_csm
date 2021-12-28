@@ -34,9 +34,9 @@ from authen import views
 from authen.urls import auth_urlpatterns
 from bookcase.urls import history_urlpatterns
 from books.urls import books_public_urlpatterns, books_urlpatterns
-from groups.urls import group_public_urlpatterns
+from groups.urls import group_public_urlpatterns, group_private_urlpatterns
 from posts.urls import post_public_urlpatterns, post_urlpatterns
-from userprofile.urls import follow_urlpatterns, userprofile_urlpatterns
+from userprofile.urls import follow_urlpatterns, userprofile_urlpatterns, userprofile_public_urlpatterns
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -53,9 +53,9 @@ schema_view = get_schema_view(
 
 
 external_public_urlpatterns = books_public_urlpatterns + post_public_urlpatterns \
-                              + group_public_urlpatterns
+                              + group_public_urlpatterns + userprofile_public_urlpatterns
 external_urlpatterns = follow_urlpatterns + auth_urlpatterns + history_urlpatterns + books_urlpatterns \
-                       + post_urlpatterns + userprofile_urlpatterns
+                       + post_urlpatterns + userprofile_urlpatterns + group_private_urlpatterns
 
 
 urlpatterns = [

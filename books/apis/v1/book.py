@@ -51,7 +51,7 @@ class BookView(ReadOnlyModelViewSet):
         paginator = PageNumberPagination()
         paginator.page_size = 10
         if type_book == 'hot':
-            books = Book.objects.order_by('-view_count', '-star', '-like_count')
+            books = Book.objects.order_by('-view_count', '-rate', '-like_count')
         elif type_book == 'new':
             books = Book.objects.order_by('-date_added')
         elif type_book == 'full':
@@ -126,7 +126,7 @@ class BookView(ReadOnlyModelViewSet):
         paginator.page_size = 10
 
         # Cho nay se lam recommend system
-        book = Book.objects.filter().order_by('-star')
+        book = Book.objects.filter().order_by('-rate')
         result_page = paginator.paginate_queryset(book, request)
         list_suggest_books = BookSerializer(result_page, context={"request": request}, many=True)
 

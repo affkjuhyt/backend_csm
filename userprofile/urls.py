@@ -2,6 +2,7 @@ from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 from userprofile.apis.v1 import UserPublicView, UpdateInfo,\
     FollowBookAdminView, DownloadBookAdminView, UserFollowingViewSet, UserGroupViewSet
+from userprofile.apis.v1.user_profile import UserProfileView
 
 public_router = ExtendedSimpleRouter()
 
@@ -18,6 +19,17 @@ public_router.register(
 # )
 
 userprofile_urlpatterns = public_router.urls
+
+
+public_user_router = ExtendedSimpleRouter()
+
+public_user_router.register(
+    r'user-profile',
+    UserProfileView,
+    basename='v1-user-profile'
+)
+
+userprofile_public_urlpatterns = public_user_router.urls
 
 
 private_router = ExtendedSimpleRouter()

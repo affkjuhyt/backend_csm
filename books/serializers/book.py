@@ -16,7 +16,7 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'is_enable', 'thumbnail', 'description', 'author', 'date_modified',
-                  'date_added', 'sex', 'status', 'type', 'like_count', 'view_count', 'star', 'is_vip', 'is_full', 'chapter']
+                  'date_added', 'sex', 'status', 'type', 'like_count', 'view_count', 'rate', 'is_vip', 'is_full', 'chapter']
         read_only_fields = ['id', 'is_enable']
 
     def get_chapter(self, obj):
@@ -88,7 +88,7 @@ class BookAdminViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'is_enable', 'thumbnail', 'description', 'author', 'date_modified',
-                  'date_added', 'sex', 'status', 'type', 'like_count', 'view_count', 'star', 'is_vip', 'is_full']
+                  'date_added', 'sex', 'status', 'type', 'like_count', 'view_count', 'rate', 'is_vip', 'is_full']
         read_only_fields = ['id', 'is_enable']
 
     def to_representation(self, instance):
@@ -116,7 +116,7 @@ class ExportBookDataSerializer(CustomModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('id', 'title', 'author', 'status', 'type', 'like_count', 'view_count', 'star', 'description')
+        fields = ('id', 'title', 'author', 'status', 'type', 'like_count', 'view_count', 'rate', 'description')
 
 
 class BookDataCreateUpdateSerializer(CustomModelSerializer):

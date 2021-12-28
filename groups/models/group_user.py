@@ -19,6 +19,7 @@ class GroupUser(BaseTimeStampModel):
         on_delete=models.CASCADE,
         related_name="%(class)s"
     )
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return "%s" % self.id

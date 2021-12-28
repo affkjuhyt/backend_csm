@@ -70,20 +70,22 @@ class BookDataAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generic
         return Book.objects.filter()
 
     def update_book(self, request, *args, **kwargs):
-        zip_import = request.data.get('file')
-        data = request.data
-        if data.get('id') == 'undefined':
-            title = data.get('title')
-            author = data.get('author')
-            type = data.get('type')
-            description = data.get('description')
-            book = Book.objects.create(title=title, author=author, description=description)
-            book.save()
+        try:
+            zip_import = request.data.get('file')
+            data = request.data
+            if data.get('id') == 'undefined':
+                title = data.get('title')
+                author = data.get('author')
+                type = data.get('type')
+                description = data.get('description')
+                book = Book.objects.create(title=title, author=author, description=description)
+                book.save()
 
-            tag = Tag.objects.create(name=type)
-            tag.save()
-            tag_book = TagBook.objects.create(tag=tag, book=book)
-            tag_book.save()
+                tag = Tag.objects.create(name=type)
+                tag.save()
+                tag_book = TagBook.objects.create(tag=tag, book=book)
+                tag_book.save()
+
 
             zip_file = zipfile.ZipFile(zip_import)
             chapter = []
@@ -109,42 +111,43 @@ class BookDataAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generic
                     saved_path = default_storage.save(path, ContentFile(data))
                     chapter_last = Chapter.objects.filter().last()
                     ImageBook.objects.create(image=saved_path, chapter=chapter_last)
-        else:
-            id = int(data.get('id'))
-            title = data.get('title')
-            author = data.get('author')
-            type = data.get('type')
-            description = data.get('description')
-            Book.objects.filter(pk=id).update(description=description, title=title, author=author, type=type)
-            book = Book.objects.filter(pk=id).first()
+            else:
+                id = int(data.get('id'))
+                title = data.get('title')
+                author = data.get('author')
+                type = data.get('type')
+                description = data.get('description')
+                Book.objects.filter(pk=id).update(description=description, title=title, author=author, type=type)
+                book = Book.objects.filter(pk=id).first()
 
-            # Get ra name thu muc de luu vao chuong
-            # Sau do lay image de luu vao chuong
-            zip_file = zipfile.ZipFile(zip_import)
-            chapter = []
-            for name in zip_file.namelist():
-                if ".png" not in name:
-                    name = name[:-1]
-                    chapter.append(name)
-                    Chapter.objects.create(title=name, book_id=book.id)
-                else:
-                    data = zip_file.read(name)
-                    try:
-                        from PIL import Image
-                        image = Image.open(BytesIO(data))
-                        image.load()
-                        image = Image.open(BytesIO(data))
-                        image.verify()
-                    except ImportError:
-                        pass
-                    except:
-                        continue
-                    name = os.path.split(name)[1]
-                    path = os.path.join('books', today_path, name)
-                    saved_path = default_storage.save(path, ContentFile(data))
-                    chapter_last = Chapter.objects.filter().last()
-                    ImageBook.objects.create(image=saved_path, chapter=chapter_last)
-
+                # Get ra name thu muc de luu vao chuong
+                # Sau do lay image de luu vao chuong
+                zip_file = zipfile.ZipFile(zip_import)
+                chapter = []
+                for name in zip_file.namelist():
+                    if ".png" not in name:
+                        name = name[:-1]
+                        chapter.append(name)
+                        Chapter.objects.create(title=name, book_id=book.id)
+                    else:
+                        data = zip_file.read(name)
+                        try:
+                            from PIL import Image
+                            image = Image.open(BytesIO(data))
+                            image.load()
+                            image = Image.open(BytesIO(data))
+                            image.verify()
+                        except ImportError:
+                            pass
+                        except:
+                            continue
+                        name = os.path.split(name)[1]
+                        path = os.path.join('books', today_path, name)
+                        saved_path = default_storage.save(path, ContentFile(data))
+                        chapter_last = Chapter.objects.filter().last()
+                        ImageBook.objects.create(image=saved_path, chapter=chapter_last)
+        except OSError as e:
+            return Response("Không có file zip để tạo dữ liệu truyện")
         return Response('Create and update successfully')
 
 
@@ -154,12 +157,8 @@ class ChapterDataModelViewSet(CustomModelViewSet):
     """
     queryset = Chapter.objects.all()
     serializer_class = ChapterDataSerializer
-    # create_serializer_class = ChapterDataCreateUpdateSerializer
-    # update_serializer_class = ChapterDataCreateUpdateSerializer
     filter_class = ChapterDataFilter
-    # update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
-    # create_extra_permission_classes = (CommonPermission,)
     search_fields = ('title',)
     ordering = 'number'
 
@@ -321,7 +320,6 @@ class CommentAdminViewSet(CustomModelViewSet):
     filter_class = CommentFilter
     create_serializer_class = CommentDataCreateUpdateSerializer
     update_serializer_class = CommentDataCreateUpdateSerializer
-    # extra_filter_backends = [DataLevelPermissionsFilter]
     update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)

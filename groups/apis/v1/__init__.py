@@ -1,1 +1,1 @@
-from .group import GroupView
+from .group import GroupView, GroupAdminView
