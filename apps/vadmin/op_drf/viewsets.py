@@ -1,6 +1,5 @@
 from types import FunctionType, MethodType
 
-# from rest_framework_mongoengine.generics import GenericAPIView as MongoGenericAPIView
 from django.core.exceptions import ValidationError
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404 as _get_object_or_404
@@ -73,7 +72,6 @@ class GenericViewSet(ViewSetMixin, GenericAPIView):
 
     def get_action_extra_permissions(self):
         """
-        获取已配置的action权限校验,并且实例化其对象
         :return:
         """
         action_extra_permission_classes = getattr(self, f"{self.action}_extra_permission_classes", None)
@@ -83,7 +81,6 @@ class GenericViewSet(ViewSetMixin, GenericAPIView):
 
     def check_action_extra_permissions(self, request):
         """
-        逐个校验action权限校验
         :param request:
         :return:
         """
@@ -95,7 +92,6 @@ class GenericViewSet(ViewSetMixin, GenericAPIView):
 
     def check_action_extra_object_permissions(self, request, obj):
         """
-        action方法的专属对象权限校验
         :param request:
         :param obj:
         :return:
@@ -108,8 +104,6 @@ class GenericViewSet(ViewSetMixin, GenericAPIView):
 
     def initial(self, request, *args, **kwargs):
         """
-        重写initial方法
-        (1)新增action的权限校验
         :param request:
         :param args:
         :param kwargs:
@@ -134,9 +128,6 @@ class GenericViewSet(ViewSetMixin, GenericAPIView):
 
     def check_object_permissions(self, request, obj):
         """
-        重新check_object_permissions
-        (1)新增action方法的专属对象权限检查入口
-        (2)先校验共同的object_permissions, 再校验action的object_permissions
         :param request:
         :param obj:
         :return:
@@ -218,7 +209,6 @@ class MongoGenericViewSet(ViewSetMixin, MongoGenericAPIView):
 
     def get_action_extra_permissions(self):
         """
-        获取已配置的action权限校验,并且实例化其对象
         :return:
         """
         action_extra_permission_classes = getattr(self, f"{self.action}_extra_permission_classes", None)
@@ -228,7 +218,6 @@ class MongoGenericViewSet(ViewSetMixin, MongoGenericAPIView):
 
     def check_action_extra_permissions(self, request):
         """
-        逐个校验action权限校验
         :param request:
         :return:
         """
@@ -240,7 +229,6 @@ class MongoGenericViewSet(ViewSetMixin, MongoGenericAPIView):
 
     def check_action_extra_object_permissions(self, request, obj):
         """
-        action方法的专属对象权限校验
         :param request:
         :param obj:
         :return:
@@ -253,8 +241,6 @@ class MongoGenericViewSet(ViewSetMixin, MongoGenericAPIView):
 
     def initial(self, request, *args, **kwargs):
         """
-        重写initial方法
-        (1)新增action的权限校验
         :param request:
         :param args:
         :param kwargs:
@@ -279,9 +265,6 @@ class MongoGenericViewSet(ViewSetMixin, MongoGenericAPIView):
 
     def check_object_permissions(self, request, obj):
         """
-        重新check_object_permissions
-        (1)新增action方法的专属对象权限检查入口
-        (2)先校验共同的object_permissions, 再校验action的object_permissions
         :param request:
         :param obj:
         :return:
@@ -317,14 +300,7 @@ class MongoModelViewSet(mixins.CreateModelMixin,
 class CustomModelViewSet(ModelViewSet, mixins.TableSerializerMixin,
                          mixins.ImportSerializerMixin,
                          mixins.ExportSerializerMixin):
-    """
-    自定义的ModelViewSet:
-    (1)默认分页器就为统一分页器op_drf.pagination.Pagination
-    (1)默认使用统一标准返回格式
-    (1)默认支持高级搜索
-    (1)默认支持生成前端动态table的option
-    (1)ORM性能优化, 尽可能使用values_queryset形式
-    """
+
     values_queryset = None
     ordering_fields = '__all__'
 
@@ -336,7 +312,6 @@ class CustomModelViewSet(ModelViewSet, mixins.TableSerializerMixin,
 
 class CustomMongoModelViewSet(MongoModelViewSet, mixins.TableSerializerMixin):
     filter_backends = (MongoOrderingFilter, MongoSearchFilter, MongoAdvancedSearchFilter)
-    # filter_fields = '__all__' # 暂不支持__all__
     filter_fields = ()
     search_fields = ()
     ordering_fields = '__all__'

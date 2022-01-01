@@ -7,9 +7,7 @@ from .response import SuccessResponse
 
 
 class Pagination(PageNumberPagination):
-    """
-    标准分页器
-    """
+
     page_size_query_param = 'pageSize'
     other_page_size_query_param = []
     # other_page_size_query_param = ['pageSize', ]
@@ -22,7 +20,6 @@ class Pagination(PageNumberPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
         page_num = request.query_params.get(self.page_query_param)
-        # 判断，如果 pageNum 为all 则取消分页返回所有
         if page_num == 'all':
             return None
         return super().paginate_queryset(queryset, request, view)
@@ -35,7 +32,6 @@ class Pagination(PageNumberPagination):
 
     def get_page_size(self, request):
         """
-        获取页大小
         :param request:
         :return:
         """
@@ -51,7 +47,6 @@ class Pagination(PageNumberPagination):
 
     def get_page_num(self, request):
         """
-        获取页码
         :param request:
         :return:
         """
@@ -73,7 +68,7 @@ class Pagination(PageNumberPagination):
 
 class JsonPagination(Pagination):
     """
-    Json数据内存分页器
+    Json
     """
 
     def __init__(self, count=0) -> None:

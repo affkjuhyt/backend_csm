@@ -18,7 +18,7 @@ class CrontabScheduleSerializer(CustomModelSerializer):
         if queryset.count() and (
                 queryset.count() == 1 and self.initial_data.get('id', None) not in queryset.values_list('id',
                                                                                                         flat=True)):
-            raise APIException(message='值已存在!!!')
+            raise APIException(message='Value is exists!!!')
         super().save(**kwargs)
 
     class Meta:

@@ -9,14 +9,8 @@ from apps.vadmin.system.models import MessagePush
 UserProfile = get_user_model()
 
 
-# ================================================= #
-# ************** 菜单管理 序列化器  ************** #
-# ================================================= #
-
 class MenuSerializer(CustomModelSerializer):
-    """
-    简单菜单序列化器
-    """
+
     parentId = serializers.IntegerField(source="parentId.id", default=0)
 
     class Meta:
@@ -25,19 +19,8 @@ class MenuSerializer(CustomModelSerializer):
 
 
 class MenuCreateUpdateSerializer(CustomModelSerializer):
-    """
-    菜单管理 创建/更新时的列化器
-    """
 
     def validate(self, attrs: dict):
-        # name = attrs['name']
-        # role: Role = Role.objects.filter(name=name).first()
-        # if role and attrs.get('instanceId', '') != role.instanceId:
-        #     raise APIException(message=f'角色名称[{name}]不能重复')
-        # if getattr(self.instance, 'is_public', False) or attrs.get('is_public', False):
-        #     up = UserPermission(self.request.user)
-        #     if not up.is_manager():
-        #         raise APIException(message=f'仅Manger能创建/更新角色为公共角色')
         return super().validate(attrs)
 
     def save(self, **kwargs):
@@ -50,9 +33,7 @@ class MenuCreateUpdateSerializer(CustomModelSerializer):
 
 
 class MenuTreeSerializer(serializers.ModelSerializer):
-    """
-    菜单树形架构序列化器:递归序列化所有深度的子菜单
-    """
+
     label = serializers.CharField(source='name', default='')
     parentId = serializers.IntegerField(source="parentId.id", default=0)
 
@@ -61,14 +42,8 @@ class MenuTreeSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'orderNum', 'parentId')
 
 
-# ================================================= #
-# ************** 部门管理 序列化器  ************** #
-# ================================================= #
-
 class DeptSerializer(CustomModelSerializer):
-    """
-    部门管理 简单序列化器
-    """
+
     parentId = serializers.IntegerField(source="parentId.id", default=0)
 
     class Meta:
@@ -77,9 +52,6 @@ class DeptSerializer(CustomModelSerializer):
 
 
 class DeptCreateUpdateSerializer(CustomModelSerializer):
-    """
-    部门管理 创建/更新时的列化器
-    """
 
     def validate(self, attrs: dict):
         return super().validate(attrs)
@@ -90,9 +62,7 @@ class DeptCreateUpdateSerializer(CustomModelSerializer):
 
 
 class DeptTreeSerializer(serializers.ModelSerializer):
-    """
-    部门树形架构序列化器:递归序列化所有深度的子部门
-    """
+
     label = serializers.CharField(source='deptName', default='')
     parentId = serializers.IntegerField(source="parentId.id", default=0)
 
@@ -101,14 +71,7 @@ class DeptTreeSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'parentId', 'status')
 
 
-# ================================================= #
-# ************** 岗位管理 序列化器  ************** #
-# ================================================= #
-
 class PostSerializer(CustomModelSerializer):
-    """
-    岗位管理 简单序列化器
-    """
 
     class Meta:
         model = Post
@@ -116,9 +79,6 @@ class PostSerializer(CustomModelSerializer):
 
 
 class ExportPostSerializer(CustomModelSerializer):
-    """
-    导出 岗位管理 简单序列化器
-    """
 
     class Meta:
         model = Post
@@ -126,9 +86,6 @@ class ExportPostSerializer(CustomModelSerializer):
 
 
 class PostSimpleSerializer(CustomModelSerializer):
-    """
-    岗位管理 极简单序列化器
-    """
 
     class Meta:
         model = Post
@@ -136,9 +93,6 @@ class PostSimpleSerializer(CustomModelSerializer):
 
 
 class PostCreateUpdateSerializer(CustomModelSerializer):
-    """
-    岗位管理 创建/更新时的列化器
-    """
 
     def validate(self, attrs: dict):
         return super().validate(attrs)
@@ -148,14 +102,7 @@ class PostCreateUpdateSerializer(CustomModelSerializer):
         fields = '__all__'
 
 
-# ================================================= #
-# ************** 角色管理 序列化器  ************** #
-# ================================================= #
-
 class RoleSerializer(CustomModelSerializer):
-    """
-    角色管理 简单序列化器
-    """
 
     class Meta:
         model = Role
@@ -163,9 +110,7 @@ class RoleSerializer(CustomModelSerializer):
 
 
 class ExportRoleSerializer(CustomModelSerializer):
-    """
-    导出 角色管理 简单序列化器
-    """
+
     dataScope = serializers.SerializerMethodField()
 
     def get_dataScope(self, obj):
@@ -178,9 +123,6 @@ class ExportRoleSerializer(CustomModelSerializer):
 
 
 class RoleSimpleSerializer(CustomModelSerializer):
-    """
-    角色管理 极简单序列化器
-    """
 
     class Meta:
         model = Role
@@ -188,9 +130,7 @@ class RoleSimpleSerializer(CustomModelSerializer):
 
 
 class RoleCreateUpdateSerializer(CustomModelSerializer):
-    """
-    角色管理 创建/更新时的列化器
-    """
+
     menu = MenuSerializer(many=True, read_only=True)
     dept = DeptSerializer(many=True, read_only=True)
 
@@ -208,18 +148,10 @@ class RoleCreateUpdateSerializer(CustomModelSerializer):
         fields = '__all__'
 
 
-# ================================================= #
-# ************** 用户管理 序列化器  ************** #
-# ================================================= #
-
-
 class UserProfileDataSerializer(CustomModelSerializer):
-    """
-    简单用户序列化器
-    """
+
     admin = serializers.SerializerMethodField(read_only=True)
     deptId = serializers.IntegerField(source='dept.id', read_only=True)
-    # 未读通知数量
     unread_msg_count = serializers.SerializerMethodField(read_only=True)
 
     def get_admin(self, obj: UserProfile):
@@ -239,9 +171,7 @@ class UserProfileDataSerializer(CustomModelSerializer):
 
 
 class ExportUserProfileSerializer(CustomModelSerializer):
-    """
-    用户导出 序列化器
-    """
+
     last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     dept__deptName = serializers.CharField(source='dept.deptName', default='')
     dept__owner = serializers.CharField(source='dept.owner', default='')
@@ -253,9 +183,7 @@ class ExportUserProfileSerializer(CustomModelSerializer):
 
 
 class UserProfileCreateUpdateSerializer(CustomModelSerializer):
-    """
-    用户管理 创建/更新时的列化器
-    """
+
     admin = serializers.SerializerMethodField(read_only=True)
     post = PostSerializer(many=True, read_only=True)
     role = RoleSerializer(many=True, read_only=True)
@@ -263,9 +191,9 @@ class UserProfileCreateUpdateSerializer(CustomModelSerializer):
                                      validators=[
                                          CustomUniqueValidator(queryset=UserProfile.objects.all(), message="用戶已存在")],
                                      error_messages={
-                                         "blank": "请输入用户名称",
-                                         "required": "用户名称不能为空",
-                                         "max_length": "用户名称过长",
+                                         "blank": "Please enter username",
+                                         "required": "User name cannot be empty",
+                                         "max_length": "User name is too long",
                                      })
 
     def get_admin(self, obj: UserProfile):
@@ -278,9 +206,7 @@ class UserProfileCreateUpdateSerializer(CustomModelSerializer):
         return super().validate(attrs)
 
     def save(self, **kwargs):
-        # self.validated_data['dept_id'] = self.initial_data.get('deptId', None)
         data = super().save(**kwargs)
-        # data.post.set(self.initial_data.get('postIds'))
         data.role.set(self.initial_data.get('roleIds'))
         return data
 
@@ -305,12 +231,11 @@ class UserProfileImportSerializer(CustomModelSerializer):
         return data
 
     def run_validation(self, data={}):
-        # 把excel 数据进行格式转换
         if type(data) is dict:
             data['role'] = str(data['role']).split(',')
             data['post'] = str(data['post']).split(',')
-            data['gender'] = {'男': '0', '女': '1', '未知': '2'}.get(data['gender'])
-            data['is_active'] = {'启用': True, '禁用': False}.get(data['is_active'])
+            data['gender'] = {'Male': '0', 'Female': '1', 'Another': '2'}.get(data['gender'])
+            data['is_active'] = {'Enable': True, 'Disable': False}.get(data['is_active'])
         return super().run_validation(data)
 
     class Meta:

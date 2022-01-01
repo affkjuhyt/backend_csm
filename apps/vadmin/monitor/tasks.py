@@ -53,7 +53,7 @@ def get_monitor_info():
     monitor_obj.cpu_sys = float(psutil.cpu_percent(0.1))
     monitor_obj.mem_num = int(mem.total / 1024)
     monitor_obj.mem_sys = int(mem.used / 1024)
-    monitor_obj.seconds = time.strftime("%d天 %H 小时 %M 分 %S 秒", time.gmtime(int(time.time()) - int(psutil.boot_time())))
+    monitor_obj.seconds = time.strftime("%d %H  %M  %S", time.gmtime(int(time.time()) - int(psutil.boot_time())))
     monitor_obj.server = server_obj
     monitor_obj.save()
 
@@ -80,4 +80,4 @@ def clean_surplus_monitor_info():
     config_settings_obj = ConfigSettings.objects.filter(configKey='sys.monitor.info.save_days').first()
     Monitor.objects.filter(
         update_datetime__lt=datetime.timedelta(days=int(config_settings_obj.configValue or 30))).delete()
-    logger.info(f"成功清空{config_settings_obj.configValue}天前数据")
+    logger.info(f"Successfully emptied{config_settings_obj.configValue}days ago data")

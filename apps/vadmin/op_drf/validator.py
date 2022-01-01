@@ -1,15 +1,9 @@
-"""
-重写校验器返回字段
-"""
 from rest_framework.validators import UniqueValidator, qs_exists
 
 from apps.vadmin.utils.exceptions import APIException
 
 
 class CustomUniqueValidator(UniqueValidator):
-    """
-    继承,重写必填字段的验证器结果,防止字段暴露
-    """
 
     def __call__(self, value, serializer_field):
         # Determine the underlying models field name. This may not be the

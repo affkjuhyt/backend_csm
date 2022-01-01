@@ -8,12 +8,7 @@ from rest_framework.utils.serializer_helpers import BindingDict
 
 
 class CustomModelSerializer(ModelSerializer):
-    """
-    增强DRF的ModelSerializer,可自动更新模型的审计字段记录
-    (1)仅当op_drf.generics.GenericAPIView的子类里使用时有效
-    (2)非op_drf.generics.GenericAPIView里使用时, 与ModelSerializer作用一样,没人任何增强
-    (3)self.request能获取到rest_framework.request.Request对象
-    """
+
     modifier_field_name = 'modifier'
     creator_field_name = 'creator'
     dept_belong_id_field_name = 'dept_belong_id'

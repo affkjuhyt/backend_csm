@@ -117,9 +117,6 @@ class SaveFileCreateUpdateSerializer(CustomModelSerializer):
 
 
 class MessagePushSerializer(CustomModelSerializer):
-    """
-    消息通知 简单序列化器
-    """
 
     class Meta:
         model = MessagePush
@@ -130,9 +127,6 @@ class MessagePushSerializer(CustomModelSerializer):
 
 
 class MessagePushCreateUpdateSerializer(CustomModelSerializer):
-    """
-    消息通知 创建/更新时的列化器
-    """
 
     class Meta:
         model = MessagePush
@@ -140,9 +134,7 @@ class MessagePushCreateUpdateSerializer(CustomModelSerializer):
 
 
 class ExportMessagePushSerializer(CustomModelSerializer):
-    """
-    导出 消息通知 简单序列化器
-    """
+
     users = serializers.CharField(read_only=True)
 
     def get_users(self, obj):
@@ -156,16 +148,13 @@ class ExportMessagePushSerializer(CustomModelSerializer):
 
 
 class MessagePushUserSerializer(CustomModelSerializer):
-    """
-    消息通知 用户查询简单序列化器
-    """
+
     # users = UserProfileSerializer(read_only=True)
     # users = serializers.SerializerMethodField(read_only=True)
     is_read = serializers.SerializerMethodField(read_only=True)
 
     # def get_users(self, obj):
     #     return UserProfileSerializer(obj.user.all(), many=True).data
-    # 返回这个消息是否已读
     def get_is_read(self, obj):
         object = MessagePushUser.objects.filter(message_push=obj, user=self.context.get('request').user).first()
         return object.is_read if object else False
@@ -179,9 +168,6 @@ class MessagePushUserSerializer(CustomModelSerializer):
 
 
 class LoginInforSerializer(CustomModelSerializer):
-    """
-    登录日志 简单序列化器
-    """
 
     class Meta:
         model = LoginInfor
@@ -189,9 +175,6 @@ class LoginInforSerializer(CustomModelSerializer):
 
 
 class ExportLoginInforSerializer(CustomModelSerializer):
-    """
-    导出 登录日志 简单序列化器
-    """
 
     class Meta:
         model = LoginInfor
@@ -200,9 +183,6 @@ class ExportLoginInforSerializer(CustomModelSerializer):
 
 
 class OperationLogSerializer(CustomModelSerializer):
-    """
-    操作日志 简单序列化器
-    """
 
     class Meta:
         model = OperationLog
@@ -210,9 +190,6 @@ class OperationLogSerializer(CustomModelSerializer):
 
 
 class ExportOperationLogSerializer(CustomModelSerializer):
-    """
-    导出 操作日志 简单序列化器
-    """
 
     class Meta:
         model = OperationLog
@@ -222,9 +199,6 @@ class ExportOperationLogSerializer(CustomModelSerializer):
 
 
 class CeleryLogSerializer(CustomModelSerializer):
-    """
-    定时日志 简单序列化器
-    """
 
     class Meta:
         model = CeleryLog
@@ -232,9 +206,6 @@ class CeleryLogSerializer(CustomModelSerializer):
 
 
 class ExportCeleryLogSerializer(CustomModelSerializer):
-    """
-    导出 定时日志 简单序列化器
-    """
 
     class Meta:
         model = CeleryLog

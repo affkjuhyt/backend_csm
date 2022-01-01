@@ -14,18 +14,16 @@ class ServerModelViewSet(CustomModelViewSet):
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
     update_serializer_class = UpdateServerSerializer
-    # extra_filter_backends = [DataLevelPermissionsFilter]
     filter_class = ServerFilter
     update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
-    ordering = '-create_datetime'  # 默认排序
+    ordering = '-create_datetime'
 
 
 class MonitorModelViewSet(CustomModelViewSet):
     queryset = Monitor.objects.all()
     serializer_class = MonitorSerializer
-    # extra_filter_backends = [DataLevelPermissionsFilter]
     filter_class = MonitorFilter
     update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
@@ -92,7 +90,7 @@ class MonitorModelViewSet(CustomModelViewSet):
             intervalschedule_obj, _ = IntervalSchedule.objects.get_or_create(every=5, period="seconds")
             periodictask_obj = PeriodicTask()
             periodictask_obj.task = "apps.vadmin.monitor.tasks.get_monitor_info"
-            periodictask_obj.name = "定时获取系统监控信息"
+            periodictask_obj.name = "Obtain system monitoring information regularly"
             periodictask_obj.interval = intervalschedule_obj
             periodictask_obj.enabled = False
             periodictask_obj.save()
@@ -104,7 +102,7 @@ class MonitorModelViewSet(CustomModelViewSet):
                                                                    minute="0", month_of_year="*")
             clean_task_obj = PeriodicTask()
             clean_task_obj.task = "apps.vadmin.monitor.tasks.clean_surplus_monitor_info"
-            clean_task_obj.name = "定时清理多余-系统监控信息"
+            clean_task_obj.name = "Regularly clean up redundant-system monitoring information"
             clean_task_obj.crontab = crontab_obj
             clean_task_obj.enabled = True
             clean_task_obj.save()
@@ -112,11 +110,11 @@ class MonitorModelViewSet(CustomModelViewSet):
         if not config_obj:
             config_obj = ConfigSettings()
             config_obj.configKey = "sys.monitor.info.save_days"
-            config_obj.configName = "定时清理多余系统监控信息"
+            config_obj.configName = "Regularly clean up redundant system monitoring information"
             config_obj.configValue = "30"
             config_obj.configType = "Y"
             config_obj.status = "1"
-            config_obj.remark = "定时清理多余-系统监控信息，默认30天"
+            config_obj.remark = "Clean up redundant information regularly-system monitoring information, 30 days by default"
             config_obj.save()
 
         if enabled:
@@ -139,4 +137,4 @@ class MonitorModelViewSet(CustomModelViewSet):
 
     def clean_all(self, request: Request, *args, **kwargs):
         self.get_queryset().delete()
-        return SuccessResponse(msg="清空成功")
+        return SuccessResponse(msg="Empty successfully")

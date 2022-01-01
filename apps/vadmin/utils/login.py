@@ -42,25 +42,20 @@ class LoginView(ObtainJSONWebToken):
     ex = settings.JWT_AUTH.get('JWT_EXPIRATION_DELTA')
 
     def jarge_captcha(self, request):
-        """
-        校验验证码
-        :param request:
-        :return:
-        """
-        if not settings.CAPTCHA_STATE:  # 未开启验证码则返回 True
+        if not settings.CAPTCHA_STATE:
             return True
         idKeyC = request.data.get('idKeyC', None)
         idValueC = request.data.get('idValueC', None)
         if not idValueC:
-            raise GenException(message='请输入验证码')
+            raise GenException(message='Please enter verification code')
         try:
             get_captcha = CaptchaStore.objects.get(hashkey=idKeyC)
-            if str(get_captcha.response).lower() == idValueC.lower():  # 如果验证码匹配
+            if str(get_captcha.response).lower() == idValueC.lower():
                 return True
         except:
             pass
         else:
-            raise GenException(message='验证码错误')
+            raise GenException(message='Verification code error')
 
     def save_login_infor(self, request, msg='', status=True, session_id=''):
         User = get_user_model()
@@ -76,7 +71,6 @@ class LoginView(ObtainJSONWebToken):
         instance.save()
 
     def post(self, request, *args, **kwargs):
-        # 校验验证码
         self.jarge_captcha(request)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():

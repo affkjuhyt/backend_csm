@@ -14,9 +14,6 @@ logger = logging.getLogger(__name__)
 
 def op_exception_handler(ex, context):
     """
-    统一异常拦截处理
-    目的:(1)取消所有的500异常响应,统一响应为标准错误返回
-        (2)准确显示错误信息
     :param ex:
     :param context:
     :return:
@@ -34,20 +31,14 @@ def op_exception_handler(ex, context):
 
 
 class CustomAPIView(APIView):
-    """
-    继承、增强DRF的APIView
-    """
+
     extra_permission_classes = ()
-    # 仅当GET方法时会触发该权限的校验
     GET_permission_classes = ()
 
-    # 仅当POST方法时会触发该权限的校验
     POST_permission_classes = ()
 
-    # 仅当DELETE方法时会触发该权限的校验
     DELETE_permission_classes = ()
 
-    # 仅当PUT方法时会触发该权限的校验
     PUT_permission_classes = ()
 
     view_logger_classes = ()

@@ -6,16 +6,14 @@ from .fields import CreateDateTimeField, DescriptionField, ModifierCharField, Up
 
 
 class BaseModel(models.Model):
-    """
-    标准抽象模型模型,可直接继承使用
-    """
-    description = DescriptionField()  # 描述
-    update_datetime = UpdateDateTimeField()  # 修改时间
-    create_datetime = CreateDateTimeField()  # 创建时间
+
+    description = DescriptionField()
+    update_datetime = UpdateDateTimeField()
+    create_datetime = CreateDateTimeField()
 
     class Meta:
         abstract = True
-        verbose_name = '基本模型'
+        verbose_name = 'Basic model'
         verbose_name_plural = verbose_name
 
 

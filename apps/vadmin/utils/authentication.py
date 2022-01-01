@@ -1,6 +1,3 @@
-"""
-常用的认证以及DRF的认证
-"""
 import logging
 
 import jwt
@@ -20,9 +17,6 @@ User = get_user_model()
 
 
 class OpAuthJwtAuthentication(object):
-    """
-    统一JWT认证(环境允许情况下, 推荐使用RedisOpAuthJwtAuthentication)
-    """
 
     def authenticate(self, request):
         token = self.get_header_authorization(request) or self.get_cookie_authorization(request)
@@ -55,11 +49,6 @@ class OpAuthJwtAuthentication(object):
 
     @classmethod
     def get_header_authorization(cls, request):
-        """
-        获取header里的认证信息, 通常用于跨域携带请求
-        :param request:
-        :return:
-        """
         auth = request.META.get('HTTP_AUTHORIZATION', b'')
         if isinstance(auth, text_type):
             auth = auth.encode(settings.JWT_AUTH.get('HTTP_HEADER_ENCODING', 'iso-8859-1'))
@@ -72,11 +61,6 @@ class OpAuthJwtAuthentication(object):
 
     @classmethod
     def get_cookie_authorization(cls, request):
-        """
-        获取cookie里JWT认证信息
-        :param request:
-        :return:
-        """
         auth = request.COOKIES.get(settings.JWT_AUTH.get('JWT_AUTH_COOKIE', 'AUTH_JWT'), '')
         auth = auth.split()
         if len(auth) != 2 or auth[0].upper() != settings.JWT_AUTH.get('JWT_AUTH_HEADER_PREFIX', 'JWT'):
@@ -85,9 +69,6 @@ class OpAuthJwtAuthentication(object):
 
 
 class RedisOpAuthJwtAuthentication(OpAuthJwtAuthentication):
-    """
-    基于Redis的统一JWT认证(推荐使用)
-    """
     prefix = settings.JWT_AUTH.get('JWT_AUTH_HEADER_PREFIX', 'JWT')
 
     def authenticate(self, request):
@@ -100,5 +81,5 @@ class RedisOpAuthJwtAuthentication(OpAuthJwtAuthentication):
             if redis_token == token:
                 return user, token
             else:
-                raise exceptions.AuthenticationFailed("登录信息失效，请重新登录！")
+                raise exceptions.AuthenticationFailed("Login information is invalid, please log in again！")
         return res

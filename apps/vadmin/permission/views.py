@@ -1,6 +1,4 @@
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -25,7 +23,7 @@ class GetUserProfileView(APIView):
         user_dict = UserProfileDataSerializer(request.user).data
         permissions_list = ['*:*:*'] if user_dict.get('admin') else Menu.objects.filter(
             role__userprofile=request.user).values_list('perms', flat=True)
-        delete_cache = request.user.delete_cache
+        # delete_cache = request.user.delete_cache
         return SuccessResponse({
             'permissions': [ele for ele in permissions_list if ele],
             'roles': Role.objects.filter(userprofile=request.user).values_list('roleKey', flat=True),
@@ -73,16 +71,9 @@ class MenuModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('name',)
-    ordering = 'create_datetime'  # 默认排序
+    ordering = 'create_datetime'
 
     def tree_select_list(self, request: Request, *args, **kwargs):
-        """
-        递归获取部门树
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         queryset = self.filter_queryset(self.get_queryset())
         if hasattr(self, 'handle_logging'):
             self.handle_logging(request, *args, **kwargs)
@@ -90,13 +81,6 @@ class MenuModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def role_menu_tree_select(self, request: Request, *args, **kwargs):
-        """
-        根据角色ID查询菜单下拉树结构
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         menu_queryset = Menu.objects.filter(role__id=kwargs.get('pk')).values_list('id', flat=True)
         queryset = self.filter_queryset(self.get_queryset())
         if hasattr(self, 'handle_logging'):
@@ -119,16 +103,9 @@ class DeptModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission, DeptDestroyPermission)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('deptName',)
-    ordering = 'create_datetime'  # 默认排序
+    ordering = 'create_datetime'
 
     def exclude_list(self, request: Request, *args, **kwargs):
-        """
-        过滤剔除同级部门
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         dept_queryset = Dept.objects.filter(id=kwargs.get('pk')).first()
         parentId = dept_queryset.parentId if dept_queryset else ''
         queryset = self.queryset.exclude(parentId=parentId).order_by('orderNum')
@@ -138,13 +115,6 @@ class DeptModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def tree_select_list(self, request: Request, *args, **kwargs):
-        """
-        递归获取部门树
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         queryset = self.filter_queryset(self.get_queryset())
         if hasattr(self, 'handle_logging'):
             self.handle_logging(request, *args, **kwargs)
@@ -152,13 +122,6 @@ class DeptModelViewSet(CustomModelViewSet):
         return SuccessResponse(serializer.data)
 
     def role_dept_tree_select(self, request: Request, *args, **kwargs):
-        """
-        根据角色ID查询部门树结构
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
         dept_queryset = Dept.objects.filter(role__id=kwargs.get('pk')).values_list('id', flat=True)
         queryset = self.filter_queryset(self.get_queryset())
         if hasattr(self, 'handle_logging'):
@@ -168,22 +131,6 @@ class DeptModelViewSet(CustomModelViewSet):
             'depts': serializer.data,
             'checkedKeys': dept_queryset
         })
-
-
-# class PostModelViewSet(CustomModelViewSet):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     create_serializer_class = PostCreateUpdateSerializer
-#     update_serializer_class = PostCreateUpdateSerializer
-#     filter_class = PostFilter
-#     extra_filter_backends = [DataLevelPermissionsFilter]
-#     update_extra_permission_classes = (CommonPermission,)
-#     destroy_extra_permission_classes = (CommonPermission,)
-#     create_extra_permission_classes = (CommonPermission,)
-#     search_fields = ('postName',)
-#     ordering = ['postSort', 'create_datetime']
-#     export_field_data = ['STT', 'Ma', 'Chức danh', 'Sắp xếp', 'Trạng thái', 'Người tạo', 'Người biên tập', 'Nhận xét']
-#     export_serializer_class = ExportPostSerializer
 
 
 class RoleModelViewSet(CustomModelViewSet):
@@ -208,14 +155,13 @@ class UserProfileModelViewSet(CustomModelViewSet):
     create_serializer_class = UserProfileCreateUpdateSerializer
     update_serializer_class = UserProfileCreateUpdateSerializer
     filter_class = UserProfileFilter
-    # extra_filter_backends = [DataLevelPermissionsFilter]
     export_serializer_class = ExportUserProfileSerializer
-    export_field_data = ['用户序号', '登录名称', '用户名称', '用户邮箱', '手机号码', '用户性别', '帐号状态', '最后登录时间', '部门名称', '部门负责人']
+    export_field_data = ['ID', 'Username', 'Name', 'Email', 'Phone', 'Gender', 'Status', 'LastLogin']
     import_serializer_class = UserProfileImportSerializer
-    import_field_data = {'username': '登录账号', 'name': '用户名称', 'email': '用户邮箱', 'mobile': '手机号码',
-                         'gender': '用户性别(男/女/未知)',
-                         'is_active': '帐号状态(启用/禁用)', 'password': '登录密码', 'dept': '部门ID', 'role': '角色ID',
-                         'post': '岗位ID'}
+    import_field_data = {'username': 'Tài khoản', 'name': 'Tên', 'email': 'Email', 'mobile': 'SĐT',
+                         'gender': 'Giới tính',
+                         'is_active': 'Trạng thái tài khoản', 'password': 'Mật khẩu', 'role': 'role',
+                         'post': 'post'}
     update_extra_permission_classes = (CommonPermission,)
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
@@ -241,7 +187,6 @@ class UserProfileModelViewSet(CustomModelViewSet):
             instance = self.queryset.get(id=userId)
             serializer = self.get_serializer(instance)
             data['data'] = serializer.data
-            # data['postIds'] = [ele.get('id') for ele in serializer.data.get('post')]
             data['roleIds'] = [ele.get('id') for ele in serializer.data.get('role')]
             if hasattr(self, 'handle_logging'):
                 self.handle_logging(request, instance=instance, *args, **kwargs)
@@ -288,7 +233,7 @@ class UserProfileModelViewSet(CustomModelViewSet):
         instance = self.queryset.get(id=request.user.id)
         instance.password = request.data.get('newPassword', None)
         if not authenticate(username=request.user.username, password=request.data.get('oldPassword', None)):
-            return ErrorResponse(msg='旧密码不正确！')
+            return ErrorResponse(msg='Mật khẩu cũ không dúng！')
         instance.set_password(request.data.get('newPassword'))
         instance.save()
         serializer = self.get_serializer(instance)

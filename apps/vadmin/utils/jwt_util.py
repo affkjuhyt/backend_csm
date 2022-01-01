@@ -8,13 +8,6 @@ from django.contrib.auth import login
 
 
 def jwt_response_payload_handler(token, user, request):
-    """
-    重写JWT的返回值
-    :param token:
-    :param user:
-    :param request:
-    :return:
-    """
     login(request, user)
     return {
         'token': f"{token}",
@@ -22,11 +15,6 @@ def jwt_response_payload_handler(token, user, request):
 
 
 def jwt_get_session_id(token=None):
-    """
-    获取会话id
-    :param token:
-    :return:
-    """
     payload = jwt.decode(token, None, False)
     if isinstance(payload, dict):
         return payload.get("session_id", "")
@@ -34,12 +22,8 @@ def jwt_get_session_id(token=None):
 
 
 def jwt_get_user_secret_key(user):
-    """
-    重写JWT的secret的生成
-    :param user:
-    :return:
-    """
     return str(user.secret)
+
 
 def jwt_payload_handler(user):
     payload = {

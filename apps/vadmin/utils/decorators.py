@@ -1,6 +1,3 @@
-"""
-常用的装饰器以及DRF的装饰器
-"""
 import functools
 import logging
 import time
@@ -28,12 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 def BaseCeleryApp(name, save_success_logs=True):
-    """
-    celery 保存日志基础类
-    :param name: celery任务名字
-    :param save_success_logs: 是否保存成功的日志(适用于频率高的celery任务，成功不需要保存日志，则传False)
-    :return:
-    """
 
     def wraps(func):
         @app.task(name=name)
@@ -53,9 +44,9 @@ def BaseCeleryApp(name, save_success_logs=True):
                 obj.status = True
             except Exception as exc:
                 obj.status = False
-                obj.result = f"执行失败，错误信息：{exc}"
-                logger.info(f"传入参数:{args, kwargs}")
-                logger.error(f"执行失败，错误信息：{exc}")
+                obj.result = f"Execution failed, error message：{exc}"
+                logger.info(f"Incoming parameters:{args, kwargs}")
+                logger.error(f"Execution failed, error message：{exc}")
             end_time = datetime.now()
             seconds = (end_time - start_time).seconds
             obj.seconds = seconds
@@ -68,11 +59,6 @@ def BaseCeleryApp(name, save_success_logs=True):
 
 
 def print_fun_time(logger=None):
-    """
-    打印函数执行时间
-    :param logger:
-    :return:
-    """
 
     def wrapper(func):
         @functools.wraps(func)
@@ -82,9 +68,9 @@ def print_fun_time(logger=None):
             end_time = datetime.now()
             seconds = (end_time - start_time).seconds
             if logger:
-                logger.info(f"{func.__name__}耗时:{seconds}秒")
+                logger.info(f"{func.__name__}Time consuming:{seconds}s")
             else:
-                print(f"{func.__name__}耗时:{seconds}秒")
+                print(f"{func.__name__}Time consuming:{seconds}s")
             return res
 
         return inner
@@ -93,11 +79,6 @@ def print_fun_time(logger=None):
 
 
 def print_time(logger=None):
-    """
-    打印函数执行时间
-    :param logger:
-    :return:
-    """
 
     def wrapper(func):
         @functools.wraps(func)
@@ -118,11 +99,6 @@ def print_time(logger=None):
 
 
 def bas64_encode(func):
-    """
-    装饰器:Base64加密文本(func返回的文本)
-    :param func:
-    :return:
-    """
 
     def inner(*args, **kwargs):
         text = func(*args, **kwargs)
@@ -134,11 +110,6 @@ def bas64_encode(func):
 
 
 def bas64_decode(func):
-    """
-    装饰器:Base64解密文本(func返回的文本)
-    :param func:
-    :return:
-    """
 
     def inner(*args, **kwargs):
         text = func(*args, **kwargs)
@@ -150,10 +121,6 @@ def bas64_decode(func):
 
 
 def decode(crypto=""):
-    """
-    解密装饰器:BASE64
-    :param crypto: 解密算法名称(忽略大小写)
-    """
 
     def wrapper(func):
         def inner(*args, **kwargs):
@@ -171,10 +138,6 @@ def decode(crypto=""):
 
 
 def encode(crypto=""):
-    """
-    解密装饰器:BASE64
-    :param crypto: 解密算法名称(忽略大小写)
-    """
 
     def wrapper(func):
         def inner(*args, **kwargs):
@@ -187,17 +150,6 @@ def encode(crypto=""):
 
 
 def envFunction(envs='', execute=True, result=None):
-    """
-    环境函数装饰器:根据指导环境与当前环境是否匹配,判断是否执行某个函数
-    :param envs:为True时,当前环境与指定的envs匹配时,执行该函数
-    :      为False时,当前环境与指定的envs匹配时,不执行该函数
-    :param result:指定当该函数被越过时的返回值,默认None
-    实例:当环境为production时,才会执行robot_broadcast(),否则相当于在robot_broadcast里直接return
-        @envFunction(envs=['production', ], execute=True)
-        def robot_broadcast(content=''):
-           pass
-
-    """
 
     def wrapper(func):
         @functools.wraps(func)
@@ -221,14 +173,6 @@ def envFunction(envs='', execute=True, result=None):
 
 
 def exceptionHandler(logger=None, throw=False, result=None, message=None):
-    """
-    异常装饰器:用于统一处理捕获的异常
-    :param logger: 指定Logger
-    :param throw: 继续抛出这个异常
-    :param result: 发生异常时的返回值(throw=True时,无效)
-    :param message: 错误信息
-    :return:
-    """
 
     def wrapper(func):
         @functools.wraps(func)

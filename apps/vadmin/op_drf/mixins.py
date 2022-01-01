@@ -11,9 +11,7 @@ from .response import SuccessResponse
 
 
 class CreateModelMixin(mixins.CreateModelMixin):
-    """
-    继承、增强DRF的CreateModelMixin, 标准化其返回值
-    """
+
     create_serializer_class = None
 
     def create(self, request: Request, *args, **kwargs):
@@ -30,9 +28,7 @@ class CreateModelMixin(mixins.CreateModelMixin):
 
 
 class ListModelMixin(mixins.ListModelMixin):
-    """
-    继承、增强DRF的CreateModelMixin, 标准化其返回值
-    """
+
     list_serializer_class = None
 
     def list(self, request: Request, *args, **kwargs):
@@ -52,9 +48,7 @@ class ListModelMixin(mixins.ListModelMixin):
 
 
 class RetrieveModelMixin(mixins.RetrieveModelMixin):
-    """
-    继承、增强DRF的CreateModelMixin, 标准化其返回值
-    """
+
     retrieve_serializer_class = None
 
     def retrieve(self, request: Request, *args, **kwargs):
@@ -66,9 +60,7 @@ class RetrieveModelMixin(mixins.RetrieveModelMixin):
 
 
 class UpdateModelMixin(mixins.UpdateModelMixin):
-    """
-    继承、增强DRF的CreateModelMixin, 标准化其返回值
-    """
+
     update_serializer_class = None
 
     def update(self, request: Request, *args, **kwargs):
@@ -89,9 +81,7 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
-    """
-    继承、增强DRF的CreateModelMixin, 标准化其返回值
-    """
+
     destroy_serializer_class = None
 
     def get_object_list(self):
@@ -193,15 +183,13 @@ class TableSerializerMixin:
         'BooleanField': {
             'type': 'radio',
             'dicData': [
-                {'value': False, 'label': '否'},
-                {'value': True, 'label': '是'},
+                {'value': False, 'label': 'No'},
+                {'value': True, 'label': 'Yes'},
             ]
         },
 
         'ManyRelatedField': {
-            # 'type': 'select',
             'type': 'array',
-            # "multiple": True,
             'required': False,
         },
     }
@@ -271,7 +259,7 @@ class TableSerializerMixin:
             if not any([allow_null, allow_blank, allow_empty]):
                 rules = [{
                     'required': True,
-                    'message': f"""请输入{info['label']}""",
+                    'message': f"""Please enter{info['label']}""",
                     'trigger': "blur"
                 }]
                 info['rules'] = rules
@@ -280,7 +268,6 @@ class TableSerializerMixin:
                 info['clearable'] = False
 
             if not isinstance(field, (ManyRelatedField, RelatedField, PrimaryKeyRelatedField)):
-                # 防止序列化该字段的关系模型所有数据
                 choices = getattr(field, 'choices', None)
                 if choices:
                     dicData = list(map(lambda choice: {'value': choice[0], 'label': choice[1]}, choices.items()))
@@ -291,42 +278,33 @@ class TableSerializerMixin:
 
 
 class ImportSerializerMixin:
-    """
-    自定义导出模板、导入功能
-    """
-    # 导入字段
+
     import_field_data = {}
-    # 导入序列化器
     import_serializer_class = None
 
-    @transaction.atomic  # Django 事物
+    @transaction.atomic
     def importTemplate(self, request: Request, *args, **kwargs):
         """
-        用户导人模板
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
         assert self.import_field_data, (
-                "'%s' 请配置对应的导出模板字段。"
+                "'%s' Please configure the corresponding export template fields."
                 % self.__class__.__name__
         )
-        # 导出模板
         if request.method == 'GET':
-            # 示例数据
             queryset = self.filter_queryset(self.get_queryset())
             return SuccessResponse(
                 export_excel_save_model(request, self.import_field_data.values(), [],
-                                        f'导入{get_verbose_name(queryset)}模板.xls'))
+                                        f'Import {get_verbose_name(queryset)}template.xls'))
         updateSupport = request.data.get('updateSupport')
-        # 从excel中组织对应的数据结构，然后使用序列化器保存
         data = excel_to_data(request.data.get('file_url'), self.import_field_data)
         queryset = self.filter_queryset(self.get_queryset())
         unique_list = [ele.attname for ele in queryset.model._meta.get_fields() if
                        hasattr(ele, 'unique') and ele.unique == True]
         for ele in data:
-            # 获取 unique 字段
             filter_dic = {i: ele.get(i) for i in list(set(self.import_field_data.keys()) & set(unique_list))}
             instance = filter_dic and queryset.filter(**filter_dic).first()
             if instance and not updateSupport:
@@ -336,31 +314,26 @@ class ImportSerializerMixin:
             serializer = self.import_serializer_class(instance, data=ele)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return SuccessResponse(msg=f"导入成功！")
+        return SuccessResponse(msg=f"Imported successfully！")
 
 
 class ExportSerializerMixin:
-    """
-    自定义导出功能
-    """
-    # 导出字段
+
     export_field_data = []
-    # 导出序列化器
     export_serializer_class = None
 
     def export(self, request: Request, *args, **kwargs):
         """
-        导出功能
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
         assert self.export_field_data, (
-                "'%s' 请配置对应的导出模板字段。"
+                "'%s' Please configure the corresponding export template field."
                 % self.__class__.__name__
         )
         queryset = self.filter_queryset(self.get_queryset())
         data = self.export_serializer_class(queryset, many=True).data
         return SuccessResponse(export_excel_save_model(request, self.export_field_data, data,
-                                                       f'导出{get_verbose_name(queryset)}.xls'))
+                                                       f'Export {get_verbose_name(queryset)}.xls'))

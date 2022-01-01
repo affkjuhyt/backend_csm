@@ -12,11 +12,8 @@ from rest_framework.exceptions import APIException as DRFAPIException, Authentic
 
 
 class APIException(Exception):
-    """
-    通用异常:(1)用于接口请求是抛出移除, 此时code会被当做标准返回的code, message会被当做标准返回的msg
-    """
 
-    def __init__(self, code=201, message='API异常', args=('API异常',)):
+    def __init__(self, code=201, message='API exception', args=('API exception',)):
         self.args = args
         self.code = code
         self.message = message
@@ -30,11 +27,8 @@ class GenException(APIException):
 
 
 class FrameworkException(Exception):
-    """
-    框架异常、配置异常等
-    """
 
-    def __init__(self, message='框架异常', *args: object, **kwargs: object) -> None:
+    def __init__(self, message='Frame exception', *args: object, **kwargs: object) -> None:
         super().__init__(*args, )
         self.message = message
 
@@ -43,11 +37,8 @@ class FrameworkException(Exception):
 
 
 class JWTAuthenticationFailedException(APIException):
-    """
-    JWT认证异常
-    """
 
-    def __init__(self, code=201, message=None, args=('异常',)):
+    def __init__(self, code=201, message=None, args=('Abnormal',)):
         if not message:
             message = 'JWT authentication failed!'
         super().__init__(code, message, args)
@@ -55,9 +46,6 @@ class JWTAuthenticationFailedException(APIException):
 
 def op_exception_handler(ex, context):
     """
-    统一异常拦截处理
-    目的:(1)取消所有的500异常响应,统一响应为标准错误返回
-        (2)准确显示错误信息
     :param ex:
     :param context:
     :return:

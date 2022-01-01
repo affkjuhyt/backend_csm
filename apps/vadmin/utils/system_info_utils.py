@@ -1,35 +1,23 @@
-"""
-封装系服务监控相关函数
-"""
 import psutil as psutil
 
 
 def get_cpu_info():
-    """
-    获取cpu所有信息
-    """
+
     pass
 
 
 def get_memory_info():
-    """
-    获取内存所有信息
-    """
+
     pass
 
 
 def get_disk_info():
-    """
-    获取硬盘所有信息
-    """
+
     pass
 
 
 def get_cpu_used_percent():
-    """
-    获取CPU运行情况
-    :return:
-    """
+
     try:
         return float(psutil.cpu_percent(0.1))
     except:

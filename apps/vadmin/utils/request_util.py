@@ -1,6 +1,3 @@
-"""
-Request工具类
-"""
 import json
 import logging
 
@@ -17,13 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_request_user(request, authenticate=True):
-    """
-    获取请求user
-    (1)如果request里的user没有认证,那么则手动认证一次
-    :param request:
-    :param authenticate:
-    :return:
-    """
+
     user: AbstractBaseUser = getattr(request, 'user', None)
     if user and user.is_authenticated:
         return user
@@ -35,11 +26,7 @@ def get_request_user(request, authenticate=True):
 
 
 def get_request_ip(request):
-    """
-    获取请求IP
-    :param request:
-    :return:
-    """
+
     ip = getattr(request, 'request_ip', None)
     if ip:
         return ip
@@ -54,11 +41,7 @@ def get_request_ip(request):
 
 
 def get_request_data(request):
-    """
-    获取请求参数
-    :param request:
-    :return:
-    """
+
     request_data = getattr(request, 'request_data', None)
     if request_data:
         return request_data
@@ -76,13 +59,7 @@ def get_request_data(request):
 
 
 def get_request_path(request, *args, **kwargs):
-    """
-    获取请求路径
-    :param request:
-    :param args:
-    :param kwargs:
-    :return:
-    """
+
     request_path = getattr(request, 'request_path', None)
     if request_path:
         return request_path
@@ -105,13 +82,7 @@ def get_request_path(request, *args, **kwargs):
 
 
 def get_request_canonical_path(request, *args, **kwargs):
-    """
-    获取请求路径
-    :param request:
-    :param args:
-    :param kwargs:
-    :return:
-    """
+
     request_path = getattr(request, 'request_canonical_path', None)
     if request_path:
         return request_path
@@ -129,51 +100,31 @@ def get_request_canonical_path(request, *args, **kwargs):
 
 
 def get_browser(request, *args, **kwargs):
-    """
-    获取浏览器名
-    :param request:
-    :param args:
-    :param kwargs:
-    :return:
-    """
+
     ua_string = request.META['HTTP_USER_AGENT']
     user_agent = parse(ua_string)
     return user_agent.get_browser()
 
 
 def get_os(request, *args, **kwargs):
-    """
-    获取操作系统
-    :param request:
-    :param args:
-    :param kwargs:
-    :return:
-    """
+
     ua_string = request.META['HTTP_USER_AGENT']
     user_agent = parse(ua_string)
     return user_agent.get_os()
 
 
 def get_login_location(request, *args, **kwargs):
-    """
-    获取ip 登录位置
-    :param request:
-    :param args:
-    :param kwargs:
-    :return:
-    """
+
     if not getattr(settings, "ENABLE_LOGIN_LOCATION", False): return ""
     import requests
-    import eventlet  # 导入eventlet这个模块
+    import eventlet
     request_ip = get_request_ip(request)
-    # 从缓存中获取
     location = cache.get(request_ip) if getattr(settings, "REDIS_ENABLE", False) else ""
     if location:
         return location
-    # 通过api 获取，再缓存redis
     try:
-        eventlet.monkey_patch(thread=False)  # 必须加这条代码
-        with eventlet.Timeout(2, False):  # 设置超时时间为2秒
+        eventlet.monkey_patch(thread=False)
+        with eventlet.Timeout(2, False):
             apiurl = "http://whois.pconline.com.cn/ip.jsp?ip=%s" % request_ip
             r = requests.get(apiurl)
             content = r.content.decode('GBK')
@@ -187,12 +138,7 @@ def get_login_location(request, *args, **kwargs):
 
 
 def get_verbose_name(queryset=None, view=None, model=None):
-    """
-    获取 verbose_name
-    :param request:
-    :param view:
-    :return:
-    """
+
     try:
         if queryset and hasattr(queryset, 'models'):
             model = queryset.model

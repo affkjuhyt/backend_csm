@@ -7,7 +7,6 @@ class ServersAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ip', 'os', 'remark')
     search_fields = ['name']
     raw_id_fields = []
-    # list_filter = ['book']
 
 
 class MonitorsAdmin(admin.ModelAdmin):

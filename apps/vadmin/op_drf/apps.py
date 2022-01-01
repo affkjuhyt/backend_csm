@@ -10,4 +10,4 @@ class OpDrfConfig(AppConfig):
     verbose_name = "OP DRF"
 
     def ready(self):
-        logging.info("OP DRF框架检测完成:success")
+        logging.info("OP DRF:success")
