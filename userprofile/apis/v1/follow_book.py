@@ -1,17 +1,16 @@
-import logging
-
+from requests import Response
 from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSetMixin
-from rest_framework.filters import SearchFilter
+from rest_framework.viewsets import ViewSetMixin
 
-from books.models import Book
+from apps.vadmin.op_drf.response import SuccessResponse
+from books.models import Book, Comment
 from books.serializers import BookSerializer
 from application.authentications import BaseUserJWTAuthentication
+from posts.models import PostGroup
 from userprofile.models import FollowBook
 from userprofile.serializers import FollowBookSerializer
 
@@ -36,3 +35,28 @@ class FollowBookAdminView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
         serializer = BookSerializer(result_page, context={"request": request}, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='like')
+    def post_like(self, request, *args, **kwargs):
+        type_like = request.data.get("type_like")
+        if type_like == 'book':
+            book_id = request.data.get("book")
+            book = Book.objects.filter(pk=book_id).first()
+            book.like_count = book.like_count + 1
+            book.save()
+
+            return SuccessResponse("Like book successfully", status=status.HTTP_200_OK)
+        elif type_like == 'comment':
+            comment_id = request.data.get('comment')
+            comment = Comment.objects.filter(pk=comment_id).first()
+            comment.like_count = comment.like_count + 1
+            comment.save()
+
+            return SuccessResponse("Like comment successfully", status=status.HTTP_200_OK)
+        else:
+            post_id = request.data.get('post')
+            post = PostGroup.objects.filter(pk=post_id).first()
+            post.like_count = post.like_count + 1
+            post.save()
+
+            return SuccessResponse("Like post successfully", status=status.HTTP_200_OK)

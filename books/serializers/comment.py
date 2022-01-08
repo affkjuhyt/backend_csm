@@ -4,7 +4,7 @@ import logging
 from rest_framework import serializers
 
 from apps.vadmin.op_drf.serializers import CustomModelSerializer
-from books.models import Comment, Reply
+from books.models import Comment, Reply, VulgarWord
 from userprofile.serializers import UserProfileSerializer
 from apps.vadmin.permission.models import UserProfile
 

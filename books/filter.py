@@ -1,6 +1,6 @@
 import django_filters
 
-from books.models import Book, Chapter, Image, Comment
+from books.models import Book, Chapter, Image, Comment, VulgarWord
 from django.db import models
 
 
@@ -50,4 +50,16 @@ class CommentFilter(django_filters.rest_framework.FilterSet):
 
     class Meta:
         model = Comment
+        fields = '__all__'
+
+
+class VulgarFilter(django_filters.rest_framework.FilterSet):
+    """
+    Filter vulgar word
+    """
+    word = django_filters.CharFilter(lookup_expr='icontains')
+    re_word = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = VulgarWord
         fields = '__all__'

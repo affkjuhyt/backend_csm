@@ -4,3 +4,4 @@ from .book import BookSerializer
 from .tag import TagSerializer, TagBookSerializer
 from .comment import CommentSerializer, ReplySerializer
 from .history_search import HistorySearchSerializer
+from .vulgar_word import VulgarWordSerializer

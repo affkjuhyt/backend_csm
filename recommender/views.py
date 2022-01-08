@@ -217,7 +217,8 @@ def similar_content(request, content_id, num=6):
 
     data = {
         'source_id': content_id,
-        'results': list
+        'results': list,
+        'count': len(sorted_items)
     }
 
     return SuccessResponse(data)
@@ -226,7 +227,6 @@ def similar_content(request, content_id, num=6):
 @api_view(['GET'])
 def recs_cb(request, user_id, num=6):
     sorted_items = ContentBasedRecs().recommend_items(user_id, num)
-
     list = []
     for i in sorted_items:
         key = {}
@@ -248,7 +248,8 @@ def recs_cb(request, user_id, num=6):
 
     data = {
         'user_id': user_id,
-        'results': list
+        'results': list,
+        'count': len(sorted_items)
     }
 
     return SuccessResponse(data)

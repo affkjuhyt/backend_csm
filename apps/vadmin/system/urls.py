@@ -9,7 +9,7 @@ from apps.vadmin.system.views import DictDataModelViewSet, DictDetailsModelViewS
     BarChartApiView, GetCommentDayView, PercentUserApiView, RegisterUserApiView
 
 from books.views import BookDataModelViewSet, ChapterDataModelViewSet, ChapterAdminViewSet, \
-    ImageDataModelViewSet, CommentAdminViewSet, BookDataAdminViewSet
+    ImageDataModelViewSet, CommentAdminViewSet, BookDataAdminViewSet, VulgarAdminViewSet
 
 from groups.views import GroupDataModelViewSet
 
@@ -21,6 +21,7 @@ router.register(r'book/chapter', ChapterDataModelViewSet)
 router.register(r'group', GroupDataModelViewSet)
 router.register(r'post', PostGroupDataModelViewSet)
 router.register(r'comment', CommentAdminViewSet, basename='comment')
+router.register(r'vulgar', VulgarAdminViewSet, basename='vulgar')
 router.register(r'config', ConfigSettingsModelViewSet)
 router.register(r'savefile', SaveFileModelViewSet)
 router.register(r'image', ImageDataModelViewSet)
@@ -43,6 +44,8 @@ urlpatterns = [
     re_path('book/chapter/export/', ChapterDataModelViewSet.as_view({'get': 'export'})),
     re_path('book/chapter/update/', ChapterAdminViewSet.as_view({'put': 'update_chapter'})),
     re_path('dict/type/clearCache/', DictDetailsModelViewSet.as_view({'delete': 'clearCache', })),
+    # export data vulgar
+    re_path('vulgar/export', VulgarAdminViewSet.as_view({'get': 'export'})),
     # export Group
     re_path('group/export', GroupDataModelViewSet.as_view({'get': 'export'})),
     # clearCache group

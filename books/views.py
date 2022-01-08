@@ -12,8 +12,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 
-from books.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter, CommentFilter
-from books.models import Book, Chapter, Comment, Tag, TagBook
+from books.filter import BookDataFilter, ChapterDataFilter, SaveImageFilter, CommentFilter, VulgarFilter
+from books.models import Book, Chapter, Comment, Tag, TagBook, VulgarWord
 from books.serializers.book import BookDataSerializer, BookDataCreateUpdateSerializer, \
     ExportBookDataSerializer
 from books.models.image import Image as ImageBook, Image
@@ -27,6 +27,8 @@ from apps.vadmin.op_drf.viewsets import CustomModelViewSet
 from apps.vadmin.permission.permissions import CommonPermission, User
 from apps.vadmin.utils.export_excel import export_excel_save_model
 from apps.vadmin.utils.file_util import get_all_files, delete_files, remove_empty_dir
+from books.serializers.vulgar_word import VulgarDataSerializer, VulgarDataCreateUpdateSerializer, \
+    ExportVulgarDataSerializer
 
 
 class BookDataModelViewSet(CustomModelViewSet):
@@ -86,31 +88,30 @@ class BookDataAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generic
                 tag_book = TagBook.objects.create(tag=tag, book=book)
                 tag_book.save()
 
-
-            zip_file = zipfile.ZipFile(zip_import)
-            chapter = []
-            for name in zip_file.namelist():
-                if ".png" not in name:
-                    name = name[:-1]
-                    chapter.append(name)
-                    Chapter.objects.create(title=name, book_id=book.id)
-                else:
-                    data = zip_file.read(name)
-                    try:
-                        from PIL import Image
-                        image = Image.open(BytesIO(data))
-                        image.load()
-                        image = Image.open(BytesIO(data))
-                        image.verify()
-                    except ImportError:
-                        pass
-                    except:
-                        continue
-                    name = os.path.split(name)[1]
-                    path = os.path.join('books', today_path, name)
-                    saved_path = default_storage.save(path, ContentFile(data))
-                    chapter_last = Chapter.objects.filter().last()
-                    ImageBook.objects.create(image=saved_path, chapter=chapter_last)
+                zip_file = zipfile.ZipFile(zip_import)
+                chapter = []
+                for name in zip_file.namelist():
+                    if ".jpg" not in name:
+                        name = name[:-1]
+                        chapter.append(name)
+                        Chapter.objects.create(title=name, book_id=book.id)
+                    else:
+                        data = zip_file.read(name)
+                        try:
+                            from PIL import Image
+                            image = Image.open(BytesIO(data))
+                            image.load()
+                            image = Image.open(BytesIO(data))
+                            image.verify()
+                        except ImportError:
+                            pass
+                        except:
+                            continue
+                        name = os.path.split(name)[1]
+                        path = os.path.join('books', today_path, name)
+                        saved_path = default_storage.save(path, ContentFile(data))
+                        chapter_last = Chapter.objects.filter().last()
+                        ImageBook.objects.create(image=saved_path, chapter=chapter_last)
             else:
                 id = int(data.get('id'))
                 title = data.get('title')
@@ -119,13 +120,12 @@ class BookDataAdminViewSet(ViewSetMixin, generics.RetrieveUpdateAPIView, generic
                 description = data.get('description')
                 Book.objects.filter(pk=id).update(description=description, title=title, author=author, type=type)
                 book = Book.objects.filter(pk=id).first()
-
                 # Get ra name thu muc de luu vao chuong
                 # Sau do lay image de luu vao chuong
                 zip_file = zipfile.ZipFile(zip_import)
                 chapter = []
                 for name in zip_file.namelist():
-                    if ".png" not in name:
+                    if ".jpg" not in name:
                         name = name[:-1]
                         chapter.append(name)
                         Chapter.objects.create(title=name, book_id=book.id)
@@ -330,3 +330,19 @@ class CommentAdminViewSet(CustomModelViewSet):
 
     def get_queryset(self):
         return Comment.objects.filter()
+
+
+class VulgarAdminViewSet(CustomModelViewSet):
+    serializer_class = VulgarDataSerializer
+    filter_class = VulgarFilter
+    create_serializer_class = VulgarDataCreateUpdateSerializer
+    update_serializer_class = VulgarDataCreateUpdateSerializer
+    update_extra_permission_classes = (CommonPermission,)
+    destroy_extra_permission_classes = (CommonPermission,)
+    create_extra_permission_classes = (CommonPermission,)
+    search_fields = ('word', 're_word',)
+    export_field_data = ['ID', 'Cụm từ', 'Từ thay thế']
+    export_serializer_class = ExportVulgarDataSerializer
+
+    def get_queryset(self):
+        return VulgarWord.objects.filter()

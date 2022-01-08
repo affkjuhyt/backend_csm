@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from books.models import Book, Image, Comment, Reply, Chapter, Tag, TagBook, HistorySearch
+from books.models import Book, Image, Comment, Reply, Chapter, Tag, TagBook, HistorySearch, VulgarWord
 
 
 class BooksAdmin(admin.ModelAdmin):
     list_display = (
-    'id', 'title', 'type', 'description', 'author', 'status', 'is_vip', 'thumbnail', 'rate', 'view_count', 'like_count')
-    search_fields = ['title', 'author']
+        'id', 'title', 'type', 'description', 'author', 'status', 'is_vip', 'thumbnail', 'rate', 'view_count',
+        'like_count')
+    search_fields = ['title', 'author', 'id']
     raw_id_fields = []
     list_filter = ['is_vip', 'status', 'is_enable']
 
@@ -52,6 +53,11 @@ class HistorySearchAdmin(admin.ModelAdmin):
     raw_id_fields = []
 
 
+class VulgarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'word', 're_word')
+    raw_id_fields = []
+
+
 admin.site.register(Book, BooksAdmin)
 admin.site.register(Chapter, ChaptersAdmin)
 admin.site.register(Image, ImagesAdmin)
@@ -60,3 +66,4 @@ admin.site.register(TagBook, TagBooksAdmin)
 admin.site.register(Comment, CommentsAdmin)
 admin.site.register(Reply, ReplyAdmin)
 admin.site.register(HistorySearch, HistorySearchAdmin)
+admin.site.register(VulgarWord, VulgarAdmin)

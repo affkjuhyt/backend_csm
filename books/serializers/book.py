@@ -80,7 +80,7 @@ class BookAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'is_enable']
 
     def get_chapter(self, obj):
-        result = Chapter.objects.filter(book=obj).order_by('-date_added')
+        result = Chapter.objects.filter(book=obj).order_by('-id')
         return ChapterViewSerializer(result, many=True).data
 
 
@@ -95,6 +95,11 @@ class BookAdminViewSerializer(serializers.ModelSerializer):
         response = super().to_representation(instance)
         comment_count = Comment.objects.filter(book=instance)
         response['count_comment'] = comment_count.count()
+        if instance.thumbnail:
+            response['thumbnail'] = instance.thumbnail.url
+        else:
+            response['thumbnail'] = ''
+
 
         return response
 

@@ -1,4 +1,5 @@
 import logging
+import re
 
 from rest_framework import generics, status
 from rest_framework.decorators import action
@@ -7,13 +8,18 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSetMixin
+from django.db.models import Q, CharField
+from django.db.models.functions import Lower
 
-from books.models import Comment, Reply
+
+from books.models import Comment, Reply, VulgarWord
 from books.serializers import CommentSerializer
 from application.authentications import BaseUserJWTAuthentication
-from books.serializers.comment import CreateCommentDataSerializer, ReplySerializer
+from books.serializers.comment import ReplySerializer
 
 logger = logging.getLogger(__name__.split('.')[0])
+
+CharField.register_lookup(Lower, "lower")
 
 
 class CommentView(ReadOnlyModelViewSet):
@@ -67,9 +73,21 @@ class CommentPostView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.Lis
         user = request.user
         content = request.data['content']
         try:
-            comment = Comment.objects.create(book_id=book, chapter_id=chapter, user=user, content=content,
+            new_list = []
+            content_slices = re.findall(r'\S+', content)
+            for content_slice in content_slices:
+                vulgar = VulgarWord.objects.filter(Q(word__lower__contains=content_slice.lower()))
+                if len(vulgar) > 0:
+                    re_word = vulgar.get().re_word
+                    new_list.append(re_word)
+                else:
+                    new_list.append(content_slice)
+
+            list_to_str = ' '.join(map(str, new_list))
+            comment = Comment.objects.create(book_id=book, chapter_id=chapter, user=user, content=list_to_str,
                                              post_id=post)
             comment.save()
+
             return Response("Create comment successfully", status=status.HTTP_200_OK)
         except:
             return Response("Create comment false", status=status.HTTP_404_NOT_FOUND)
