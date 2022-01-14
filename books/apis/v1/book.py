@@ -22,6 +22,7 @@ from datetime import datetime
 
 from books.serializers.book import BookAdminSerializer, BookAdminViewSerializer
 from books.serializers.chapter import ChapterViewSerializer
+from books.serializers.comment import CommentDataSerializer
 
 today = datetime.now()
 today_path = today.strftime("%Y/%m/%d")
@@ -68,14 +69,21 @@ class BookView(ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'], url_path='search')
     def search_book(self, request, *args, **kwargs):
         search_vectors = SearchVector('title', weight='A') + SearchVector('author', weight='B') \
-                         + SearchVector('tagbook__tag__name', weight='C') + SearchVector('description', weight='D')
+                         + SearchVector('tagbook__tag__name', weight='C')
 
         text = request.GET.get('params', '')
+        search = HistorySearch.objects.filter(text=text.lower()).first()
+        if search is None:
+            history = HistorySearch.objects.create(text=text.lower())
+            history.save()
+        else:
+            search.point = search.point + 1
+            search.save()
         search_query = SearchQuery(text)
         search_rank = SearchRank(search_vectors, search_query)
         books = Book.objects.annotate(
             rank=search_rank
-        ).order_by('-rank')
+        ).order_by('-rank')[:10]
         paginator = PageNumberPagination()
         paginator.page_size = 10
         token = request.META.get('HTTP_AUTHORIZATION', " ")
@@ -89,14 +97,19 @@ class BookView(ReadOnlyModelViewSet):
                 request.user = user
             except ValidationError as v:
                 print("validation error", v)
-            HistorySearch.objects.create(user=self.request.user, text=text)
+            if search is None:
+                history = HistorySearch.objects.create(user=self.request.user, text=text.lower())
+                history.save()
+            else:
+                search.point = search.point + 1
+                search.save()
 
         result_page = paginator.paginate_queryset(books, request)
         list_books = BookSerializer(result_page, context={"request": request}, many=True)
 
         return paginator.get_paginated_response(list_books.data)
 
-    @action(detail=True, methods=['get'], url_path='total_comment', serializer_class=CommentSerializer)
+    @action(detail=True, methods=['get'], url_path='list_comment', serializer_class=CommentSerializer)
     def get_comment(self, request, *args, **kwargs):
         book = self.get_object()
 
@@ -105,7 +118,7 @@ class BookView(ReadOnlyModelViewSet):
 
         comments = Comment.objects.filter(book=book).order_by('-like_count')
         result_page = paginator.paginate_queryset(comments, request)
-        list_comments = CommentSerializer(result_page, context={"request": request}, many=True)
+        list_comments = CommentDataSerializer(result_page, context={"request": self.request.user}, many=True)
 
         return paginator.get_paginated_response(list_comments.data)
 
@@ -240,17 +253,30 @@ class BookAdminView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListC
         serializer = ChapterViewSerializer(result_page, context={"request": request}, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['posts'], url_path='add_comment')
+    @action(detail=True, methods=['post'], url_path='add_comment')
     def post_add_comment(self, request, *args, **kwargs):
         content = request.data['content']
         comment_id = request.data['comment_id']
         try:
             user = self.request.user
             book = self.get_object()
-            if comment_id == "":
+            if comment_id != "":
                 Reply.objects.create(comment_id=comment_id, user=user, content=content)
             else:
                 Comment.objects.create(user=user, book=book, content=content)
             return Response("Create comment successfully", status=status.HTTP_200_OK)
         except:
             return Response("Error", status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['get'], url_path='list_comment', serializer_class=CommentSerializer)
+    def get_comment(self, request, *args, **kwargs):
+        book = self.get_object()
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+
+        comments = Comment.objects.filter(book=book).order_by('-like_count')
+        result_page = paginator.paginate_queryset(comments, request)
+        list_comments = CommentDataSerializer(result_page, context={"request": self.request.user}, many=True)
+
+        return paginator.get_paginated_response(list_comments.data)

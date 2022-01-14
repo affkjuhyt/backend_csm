@@ -166,7 +166,7 @@ class UserProfileModelViewSet(CustomModelViewSet):
     destroy_extra_permission_classes = (CommonPermission,)
     create_extra_permission_classes = (CommonPermission,)
     search_fields = ('username',)
-    ordering = 'create_datetime'
+    ordering = 'id'
 
     def change_status(self, request: Request, *args, **kwargs):
         instance = self.queryset.get(id=request.data.get('userId'))

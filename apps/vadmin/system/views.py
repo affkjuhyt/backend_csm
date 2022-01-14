@@ -561,24 +561,24 @@ class GetCommentDayView(APIView):
         response = {}
         today = datetime.datetime.today().weekday()
         response['Mon'] = PostGroup.objects.filter(
-            date_added__gte=(datetime.datetime.now() - datetime.timedelta(days=today))).count()
+            date_modified__gte=(datetime.datetime.now() - datetime.timedelta(days=today))).count()
         response['Tue'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=1)).count()
         response['Wed'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=2)).count()
         response['Thu'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=3)).count()
         response['Fri'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=4)).count()
         response['Sat'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=5)).count()
         response['Sun'] = PostGroup.objects.filter(
-            date_added__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=today) + datetime.timedelta(
                 days=6)).count()
 
         return SuccessResponse(data=response)

@@ -15,9 +15,11 @@ class HistorySearch(BaseTimeStampModel):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="%(class)s"
+        related_name="%(class)s",
+        null=True
     )
     text = models.CharField(max_length=1000, null=True)
+    point = models.IntegerField(default=1)
 
     def __str__(self):
         return "%s" % self.id

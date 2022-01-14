@@ -5,7 +5,7 @@ from collector.models import Log
 
 class LogAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'created', 'user_id', 'content_id', 'event', 'session_id')
+        'id', 'created', 'user_id', 'content_id', 'event', 'type', 'session_id')
     search_fields = ['event', 'user_id']
     raw_id_fields = []
 

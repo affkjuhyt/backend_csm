@@ -21,7 +21,8 @@ class PostGroup(BaseTimeStampModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="%(class)s"
+        related_name="%(class)s",
+        null=True
     )
     group = models.ForeignKey(Group, null=True, on_delete=models.CASCADE)
     content = models.TextField(max_length=2000, null=True, blank=True)

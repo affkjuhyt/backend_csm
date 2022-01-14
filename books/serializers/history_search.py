@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class HistorySearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistorySearch
-        fields = ['id', 'user', 'text', 'date_modified', 'date_added', 'is_deleted']
+        fields = ['id', 'user', 'text', 'point', 'date_modified', 'date_added', 'is_deleted']
         read_only_fields = ['id']
 
     def to_representation(self, instance):

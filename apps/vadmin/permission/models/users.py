@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__.split('.')[0])
 class UserProfile(AbstractUser, CoreModel):
     MALE = 'male'
     FEMALE = 'female'
+    ANOTHER = 'another'
 
     LEVEL0 = '0'
     LEVEL1 = '1'
@@ -35,8 +36,9 @@ class UserProfile(AbstractUser, CoreModel):
     )
 
     GENDER = (
-        (MALE, 'Male'),
-        (FEMALE, 'Female'),
+        (MALE, "Male"),
+        (FEMALE, "Female"),
+        (ANOTHER, "Another")
     )
     objects = UserManager()
     email = models.CharField(max_length=255, null=False, blank=False, verbose_name="email")

@@ -1,0 +1,18 @@
+{% extends 'email/base_email.html' %}
+
+{% block content %}
+<p>Hello <span style="color: #F0B90B">{{username}}</span>,</p>
+<br>
+<p><span>Thank you for signing up at BitHera!</span></p>
+<p><span>Please verify your email address by clicking the button below.</span></p>
+<p><span>You will only need to do this once.</span></p>
+<br>
+<div style="margin: 30px 0;">
+    <a href="{{verification_url}}"
+       target="_blank"
+       style="text-decoration: none; color: white; padding: 10px; border-radius: 5px; margin-right: 10px; margin-bottom: 5px; background: #F0B90B;"
+    >
+        VERIFY REGISTRATION
+    </a>
+</div>
+{% endblock %}

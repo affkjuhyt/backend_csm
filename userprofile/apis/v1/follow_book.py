@@ -10,6 +10,7 @@ from apps.vadmin.op_drf.response import SuccessResponse
 from books.models import Book, Comment
 from books.serializers import BookSerializer
 from application.authentications import BaseUserJWTAuthentication
+from collector.models import Log
 from posts.models import PostGroup
 from userprofile.models import FollowBook
 from userprofile.serializers import FollowBookSerializer
@@ -39,24 +40,62 @@ class FollowBookAdminView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics
     @action(detail=False, methods=['post'], url_path='like')
     def post_like(self, request, *args, **kwargs):
         type_like = request.data.get("type_like")
+        user = self.request.user
         if type_like == 'book':
             book_id = request.data.get("book")
             book = Book.objects.filter(pk=book_id).first()
-            book.like_count = book.like_count + 1
+            log = Log.objects.filter(type="book", user_id=user.id, content_id=book.id).first()
+            if log is None:
+                Log.objects.create(user_id=user.id, content_id=book.id, event='like', type='book')
+                book.like_count = book.like_count + 1
+            else:
+                if log.event == 'like':
+                    log.event = 'unlike'
+                    log.save()
+                    book.like_count = book.like_count - 1
+                else:
+                    log.event = 'like'
+                    log.save()
+                    book.like_count = book.like_count + 1
             book.save()
 
             return SuccessResponse("Like book successfully", status=status.HTTP_200_OK)
         elif type_like == 'comment':
             comment_id = request.data.get('comment')
             comment = Comment.objects.filter(pk=comment_id).first()
-            comment.like_count = comment.like_count + 1
+            log = Log.objects.filter(type="comment", user_id=user.id, content_id=comment.id).first()
+            if log is None:
+                Log.objects.create(user_id=user.id, content_id=comment.id, event='like', type='comment')
+                comment.like_count = comment.like_count + 1
+            else:
+                if log.event == 'like':
+                    log.event = 'unlike'
+                    log.save()
+                    comment.like_count = comment.like_count - 1
+                else:
+                    log.event = 'like'
+                    log.save()
+                    comment.like_count = comment.like_count + 1
             comment.save()
 
             return SuccessResponse("Like comment successfully", status=status.HTTP_200_OK)
         else:
             post_id = request.data.get('post')
             post = PostGroup.objects.filter(pk=post_id).first()
-            post.like_count = post.like_count + 1
+
+            log = Log.objects.filter(type="post", user_id=user.id, content_id=post.id).first()
+            if log is None:
+                Log.objects.create(user_id=user.id, content_id=post.id, event='like', type='post')
+                post.like_count = post.like_count + 1
+            else:
+                if log.event == 'like':
+                    log.event = 'unlike'
+                    log.save()
+                    post.like_count = post.like_count - 1
+                else:
+                    log.event = 'like'
+                    log.save()
+                    post.like_count = post.like_count + 1
             post.save()
 
             return SuccessResponse("Like post successfully", status=status.HTTP_200_OK)

@@ -219,13 +219,13 @@ LOGGING = {
         # default日志
         '': {
             'handlers': ['console', 'error', 'file'],
-            'level': 'INFO',
+            'level': 'DEBUG',
         },
         # 数据库相关日志
         'django.db.backends': {
-            'handlers': [],
+            'handlers': ['console'],
             'propagate': True,
-            'level': 'INFO',
+            'level': 'DEBUG',
         },
     }
 }

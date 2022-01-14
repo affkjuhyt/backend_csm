@@ -41,12 +41,6 @@ class UserProfileView(ReadOnlyModelViewSet):
     def get_queryset(self):
         return User.objects.filter()
 
-    # @action(detail=False, methods=['get'], url_path='user_info')
-    # def get_user_info(self, request, *args, **kwargs):
-    #     user = self.request.user
-    #     user_serializer = UserProfileSerializer(user)
-    #     return Response(user_serializer.data)
-
 
 class UserPublicView(ReadOnlyModelViewSet):
     serializer_class = UserProfileSerializer

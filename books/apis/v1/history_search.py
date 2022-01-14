@@ -18,14 +18,13 @@ class HistorySearchView(ReadOnlyModelViewSet):
     serializer_class = HistorySearchSerializer
     permission_classes = [AllowAny]
     parser_classes = [JSONParser, MultiPartParser, FormParser]
-    authentication_classes = [BaseUserJWTAuthentication]
 
     def get_queryset(self):
         return HistorySearch.objects.filter(user=self.request.user).order_by('-date_added')[:5]
 
     @action(detail=False, methods=['get'], url_path='trend', serializer_class=HistorySearchSerializer)
     def get_relate_to(self, request, *args, **kwargs):
-        histories = HistorySearch.objects.filter(user=self.request.user).order_by('-date_added')
+        histories = HistorySearch.objects.filter().order_by('-point')[:7]
         paginator = PageNumberPagination()
         paginator.page_size = 10
         result_page = paginator.paginate_queryset(histories, request)

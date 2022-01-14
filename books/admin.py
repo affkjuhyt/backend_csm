@@ -49,7 +49,7 @@ class ReplyAdmin(admin.ModelAdmin):
 
 
 class HistorySearchAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'text')
+    list_display = ('id', 'user', 'text', 'point')
     raw_id_fields = []
 
 

@@ -173,13 +173,12 @@ class UserProfileDataSerializer(CustomModelSerializer):
 class ExportUserProfileSerializer(CustomModelSerializer):
 
     last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
-    dept__deptName = serializers.CharField(source='dept.deptName', default='')
-    dept__owner = serializers.CharField(source='dept.owner', default='')
+    # dept__deptName = serializers.CharField(source='dept.deptName', default='')
+    # dept__owner = serializers.CharField(source='dept.owner', default='')
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'username', 'name', 'email', 'phone_number', 'gender', 'is_active', 'last_login', 'dept__deptName',
-                  'dept__owner')
+        fields = ('id', 'username', 'name', 'email', 'phone_number', 'gender', 'is_active', 'last_login')
 
 
 class UserProfileCreateUpdateSerializer(CustomModelSerializer):
@@ -233,7 +232,7 @@ class UserProfileImportSerializer(CustomModelSerializer):
     def run_validation(self, data={}):
         if type(data) is dict:
             data['role'] = str(data['role']).split(',')
-            data['post'] = str(data['post']).split(',')
+            # data['post'] = str(data['post']).split(',')
             data['gender'] = {'Male': '0', 'Female': '1', 'Another': '2'}.get(data['gender'])
             data['is_active'] = {'Enable': True, 'Disable': False}.get(data['is_active'])
         return super().run_validation(data)

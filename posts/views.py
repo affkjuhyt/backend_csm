@@ -32,6 +32,11 @@ class PostGroupDataModelViewSet(CustomModelViewSet):
     export_field_data = ['ID', 'Tên', 'Số lượng bài viết', 'Số lượng thành viên', 'Mô tả']
     export_serializer_class = ExportPostGroupDataSerializer
 
+    # @action(detail=False, methods=['post'], url_path=['create_post'])
+    # def post_create_post(self, request, *args, **kwargs):
+    #
+    #     return SuccessResponse("Return")
+
     @action(detail=False, methods=['get'], url_path='postPieChart')
     def get_post_piechart(self, request, *args, **kwargs):
         group_ids = Group.objects.filter().values_list('id')

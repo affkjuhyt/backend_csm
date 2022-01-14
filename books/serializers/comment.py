@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from apps.vadmin.op_drf.serializers import CustomModelSerializer
 from books.models import Comment, Reply, VulgarWord
+from collector.models import Log
 from userprofile.serializers import UserProfileSerializer
 from apps.vadmin.permission.models import UserProfile
 
@@ -115,6 +116,12 @@ class CommentDataSerializer(CustomModelSerializer):
         else:
             response['chapter'] = instance.chapter.title
         response['user'] = instance.user.username
+        log = Log.objects.filter(user_id=self.context['request'].id, event='like', type='comment', content_id=instance.id)
+        if len(log) > 0:
+            response['is_like'] = True
+        else:
+            response['is_like'] = False
+
         return response
 
 

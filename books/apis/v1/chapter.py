@@ -18,29 +18,36 @@ from books.serializers.chapter import ChapterAdminSerializer
 # from root import settings
 from application.authentications import BaseUserJWTAuthentication
 from books.models import Book, Chapter, Comment, Image
+from books.serializers.comment import CommentDataSerializer
 from userprofile.models import DownLoadBook
-from books.serializers import BookSerializer, ChapterSerializer, ImageSerializer
+from books.serializers import BookSerializer, ChapterSerializer, ImageSerializer, CommentSerializer
 from bookcase.models import History
 from rest_framework.viewsets import ViewSetMixin, ReadOnlyModelViewSet
 
 logger = logging.getLogger(__name__.split('.')[0])
 
 
-# def modify_input_for_multiple_files(chapter_id, image):
-#     dict = {}
-#     dict['chapter'] = chapter_id
-#     dict['image'] = image
-#     return dict
-
-
 class ChapterAdminView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.ListCreateAPIView):
     serializer_class = ChapterAdminSerializer
 
-    # authentication_classes = [BaseUserJWTAuthentication]
+    authentication_classes = [BaseUserJWTAuthentication]
     permission_classes = [AllowAny]
 
     def get_queryset(self):
         return Chapter.objects.filter()
+
+    @action(detail=True, methods=['get'], url_path='list_comment')
+    def get_list_comments(self, request, *args, **kwargs):
+        chapter = self.get_object()
+        user = self.request.user
+        comment = Comment.objects.filter(chapter=chapter)
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        result_page = paginator.paginate_queryset(comment, request)
+        serializer = CommentDataSerializer(result_page, context={"request": self.request.user}, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
 
     @action(detail=True, methods=['get'], url_path='download', serializer_class=ChapterSerializer)
     def get_download(self, request, *args, **kwargs):
@@ -96,26 +103,6 @@ class ChapterAdminView(ViewSetMixin, generics.RetrieveUpdateAPIView, generics.Li
         else:
             return Response("Khong co chapter nay", status=status.HTTP_404_NOT_FOUND)
 
-    # @action(detail=True, methods=['posts'], url_path='create_book')
-    # def post_book(self, request, *args, **kwargs):
-    #     chapter_id = self.get_object().id
-    #     images = dict((request.data).lists())['image']
-    #     flag = 1
-    #     arr = []
-    #     for img_name in images:
-    #         modified_data = modify_input_for_multiple_files(chapter_id,
-    #                                                         img_name)
-    #         file_serializer = ImageSerializer(data=modified_data)
-    #         if file_serializer.is_valid():
-    #             file_serializer.save()
-    #             arr.append(file_serializer.data)
-    #         else:
-    #             flag = 0
-    #     if flag == 1:
-    #         return Response(arr, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response(arr, status=status.HTTP_400_BAD_REQUEST)
-
 
 class ChapterView(ReadOnlyModelViewSet):
     serializer_class = ChapterAdminSerializer
@@ -135,4 +122,16 @@ class ChapterView(ReadOnlyModelViewSet):
         paginator.page_size = 10
         result_page = paginator.paginate_queryset(image, request)
         serializer = ImageSerializer(result_page, context={"request": request}, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='list_comment')
+    def get_list_comment(self, request, *args, **kwargs):
+        chapter = self.get_object()
+        comment = Comment.objects.filter(chapter=chapter)
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        result_page = paginator.paginate_queryset(comment, request)
+        serializer = CommentDataSerializer(result_page, context={"request": self.request.user}, many=True)
+
         return paginator.get_paginated_response(serializer.data)

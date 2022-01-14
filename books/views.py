@@ -49,6 +49,16 @@ class BookDataModelViewSet(CustomModelViewSet):
     export_field_data = ['ID', 'Tên', 'Tác giả', 'Trạng thái', 'Thể loại', 'Star', 'View', 'Like', 'Miêu tả']
     export_serializer_class = ExportBookDataSerializer
 
+    @action(detail=False, methods=['get'], url_path='comment')
+    def get_book_comment(self, request, *args, **kwargs):
+        books = Book.objects.filter()[:50]
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        result_page = paginator.paginate_queryset(books, request)
+        list_book = BookDataSerializer(result_page, context={"request": request}, many=True)
+
+        return paginator.get_paginated_response(list_book.data)
+
     @action(detail=False, methods=['get'], url_path='book_chapter')
     def get_book_chapter(self, request, *args, **kwargs):
         chapter = self.get_object()
@@ -177,13 +187,16 @@ class ChapterDataModelViewSet(CustomModelViewSet):
         paginator = PageNumberPagination()
         paginator.page_size = 10
         paginator.page_query_param = 'pageNum'
-        book_id = int(request.GET.get('book'))
+        if request.GET.get('book') == '':
+            book_id = ""
+        else:
+            book_id = int(request.GET.get('book'))
         title = request.GET.get('title')
         if not title or title == '':
             paginator.page_size = 3000
             title = ""
-        if not book_id:
-            book_id = ""
+        # if not book_id:
+        #     book_id = ""
         chapters = Chapter.objects.filter(book_id=book_id, title__contains=title).order_by('-id')
         result_page = paginator.paginate_queryset(chapters, request)
         list_chapters = ChapterDataSerializer(result_page, context={"request": request}, many=True)
